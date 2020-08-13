@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Approximate Bayesian inference for latent Gaussian models in Stan</title>
+  <meta name="description" content="Approximate Bayesian inference for latent Gaussian models in Stan" />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Approximate Bayesian inference for latent Gaussian models in Stan" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Approximate Bayesian inference for latent Gaussian models in Stan" />
+  
+  
+  
+
+<meta name="author" content="Charles C. Margossian, Aki Vehtari, Daniel Simpson  and Raj Agrawal" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<style type="text/css">
+p.abstract{
+  text-align: center;
+  font-weight: bold;
+}
+div.abstract{
+  margin: auto;
+  width: 90%;
+}
+</style>
+<script src="libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path=""><a href="#Introduction"><i class="fa fa-check"></i>Introduction</a>
+<ul>
+<li class="chapter" data-level="" data-path=""><a href="#inst"><i class="fa fa-check"></i>Installation</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#h"><i class="fa fa-check"></i>R setup</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path=""><a href="#lgm"><i class="fa fa-check"></i>Gaussian variables (hiding in the wild)</a>
+<ul>
+<li class="chapter" data-level="" data-path=""><a href="#example1"><i class="fa fa-check"></i>Example 1: sparse linear regression</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#example2"><i class="fa fa-check"></i>Example 2: Gaussian process</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path=""><a href="#bayesian"><i class="fa fa-check"></i>Tools for Bayesian inference</a>
+<ul>
+<li class="chapter" data-level="" data-path=""><a href="#a"><i class="fa fa-check"></i>Exact Marginalization</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#b"><i class="fa fa-check"></i>Approximate marginalization</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path=""><a href="#c"><i class="fa fa-check"></i>Prototype Stan code</a>
+<ul>
+<li class="chapter" data-level="" data-path=""><a href="#d"><i class="fa fa-check"></i>Picking the likelihood</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#e"><i class="fa fa-check"></i>Specifying the covariance matrix</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path=""><a href="#f"><i class="fa fa-check"></i>Disease map of Finland</a>
+<ul>
+<li class="chapter" data-level="" data-path=""><a href="#g"><i class="fa fa-check"></i>Building the model</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#r"><i class="fa fa-check"></i>Fitting the model in R</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#l"><i class="fa fa-check"></i>Comparison to inference on the exact model</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path=""><a href="#skim"><i class="fa fa-check"></i>Sparse kernel interaction model</a>
+<ul>
+<li class="chapter" data-level="" data-path=""><a href="#building"><i class="fa fa-check"></i>Building the model</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#inf"><i class="fa fa-check"></i>Fitting the model in R</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#comp"><i class="fa fa-check"></i>Comparison to inference on the exact model</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path=""><a href="#discussion"><i class="fa fa-check"></i>Discussion</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#my-section"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Approximate Bayesian inference for latent Gaussian models in Stan</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">Approximate Bayesian inference for latent Gaussian models in Stan</h1>
+<p class="author"><em>Charles C. Margossian<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Aki Vehtari<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>, Daniel Simpson<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>  and Raj Agrawal<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></em></p>
+<div class="abstract">
+<p class="abstract">Abstract</p>
+Latent Gaussian models are a common class of Bayesian hierarchical models, characterized by a normally distributed local parameter. The posterior distribution of such models often induces a geometry that frustrates sampling algorithms, such as Stan’s Hamiltonian Monte Carlo (HMC), resulting in an incomplete or slow exploration of the parameter space. To alleviate these difficulties, we can marginalize out the normal local variables and run HMC on a well-behaved subset of the parameters. Unfortunately, exact marginalization is not possible in all but a few simple cases. It is however possible to do an <em>approximate</em> marginalization, using an embedded Laplace approximation. We introduce a prototype suite of Stan functions that support this approximation scheme, and demonstrate the method on a Gaussian process disease map and a sparse kernel interaction model.
+</div>
+</div>
+<div id="Introduction" class="section level2 unnumbered" number="">
+<h2>Introduction</h2>
+<p>Latent Gaussian models are a class of hierarchical models
+that put a normal prior on the latent variable. Their general form is
+<span class="math display" id="eq:lgm">\[\begin{equation}
+\begin{split}
+  \phi &amp; \sim \pi(\phi), \\
+  \theta &amp; \sim \mathrm{Normal}(0, K(\phi)), \\
+  y &amp; \sim \pi(y \mid \theta, \phi),
+\end{split}
+\tag{1}
+\end{equation}\]</span>
+where <span class="math inline">\(y\)</span> denotes the observations, <span class="math inline">\(\theta\)</span> the <em>latent variable</em>,
+and <span class="math inline">\(\phi\)</span> the remaining unobserved variables in the model.
+Bearing a slight abuse of language, we will call <span class="math inline">\(\phi\)</span> the <em>hyperparameters</em>.
+Typically, single observations <span class="math inline">\(y_i\)</span> are independently distributed and only
+depend on a linear combination of the latent variables, that is
+<span class="math inline">\(\pi(y_i \mid \theta, \phi) = \pi(y_i \mid a^T_i \theta , \phi)\)</span>
+for some appropriate vector <span class="math inline">\(a\)</span>.
+In many applications, <span class="math inline">\(\theta_j\)</span> denotes a group parameter
+that informs the distribution of observations in group <span class="math inline">\(j\)</span>.
+Latent Gaussian models find a broad range of applications;
+and because of their normal prior are subject to convenient mathematical
+manipulations that can improve Bayesian inference.</p>
+<p>Markov chains Monte Carlo (MCMC) sampling can struggle with the geometry
+induced by such models, for instance when dealing with funnel shapes,
+and more generally high curvature densities
+<span class="citation">(Neal 2003; Betancourt and Girolami 2013)</span>.
+Much of the geometric grief we experience comes from the interaction
+between <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\theta\)</span>.</p>
+<p>An alternative approach to MCMC is to marginalize out <span class="math inline">\(\theta\)</span>,
+<span class="math display">\[
+  \pi(y \mid \phi) = \int \mathrm \pi(y \mid \theta, \phi) d \theta,
+\]</span>
+and perform standard inference on <span class="math inline">\(\phi\)</span>.
+If the likelihood, <span class="math inline">\(\pi(y \mid \theta, \phi)\)</span>, is non-Gaussian,
+exact marginalization is not possible.
+Instead, we can use an <em>embedded Laplace approximation</em>,
+and compute an approximate marginal distribution, <span class="math inline">\(\pi_\mathcal{G}(y \mid \phi)\)</span>.
+This is the driving principle behind the packages
+INLA <span class="citation">(Rue et al. 2017; Rue and Chopin 2009)</span>, GPStuff <span class="citation">(Vanhatalo et al. 2013)</span>,
+and TMB <span class="citation">(Kristensen et al. 2016)</span>.
+We now incorporate these ideas in Stan,
+notably building on the algorithmic work by <span class="citation">Rasmussen and Williams (2006)</span>.</p>
+<p>Why Stan? To perform inference on <span class="math inline">\(\phi\)</span>, we want to use Stan’s dynamic HMC,
+as opposed to more standard
+techniques, such as numeric quadrature.
+This allows us to tackle the case where <span class="math inline">\(\phi\)</span> is high-dimensional
+and has a non-unimodal posterior distribution.</p>
+<p>Embedding the Laplace approximation inside Stan’s architecture
+presents several technical challenges.
+Anecdotally, our first implementation of the Laplace approximation
+took <span class="math inline">\(\sim\)</span> 2,000 seconds to evaluate and differentiate
+the approximate log marginal density
+(for a certain test problem).
+The current implementation performs the same task in <span class="math inline">\(\sim\)</span> 0.1 second.
+The main technical innovation of our implementation
+is an <em>adjoint-differentiation method</em>,
+which can handle any covariance matrix, <span class="math inline">\(K\)</span>,
+and scales when <span class="math inline">\(\phi\)</span> is high-dimensional <span class="citation">(Margossian et al. 2020)</span>.</p>
+<div id="inst" class="section level3 unnumbered" number="">
+<h3>Installation</h3>
+<p>The functions we use in this notebook are prototypes
+and currently not part of Stan’s release version.
+In order to use them, we must first install the correct branch of Stan.
+On Mac, this can be done by running the <code>install.sh</code> script,
+in the <code>script</code> directory, from a terminal window:</p>
+<pre><code>cd script
+./install.sh</code></pre>
+<p>The script produces a CmdStan and a Stanc3 folder with all the requisite code.
+It does not install RStan or PyStan.
+Instead, we will use <a href="https://mc-stan.org/cmdstanr/">CmdStanR</a>,
+a lightweight wrapper for CmdStan,
+in order to interface Stan with R.</p>
+</div>
+<div id="h" class="section level3 unnumbered" number="">
+<h3>R setup</h3>
+<p>The full R code can be found in <code>script/run_models.r</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">set.seed</span>(<span class="dv">1954</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">.libPaths</span>(<span class="st">&quot;~/Rlib&quot;</span>)  <span class="co"># Adjust to your setting!</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">library</span>(parallel)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">library</span>(rstan)       <span class="co"># Use to read in data and for post-hoc analysis.</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="kw">library</span>(cmdstanr)    <span class="co"># Use to compile and fit the model.</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co"># Set the path to the cmdstan directory installed with install.sh</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="kw">set_cmdstan_path</span>(<span class="st">&quot;script/cmdstan&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">library</span>(ggplot2)</span></code></pre></div>
+</div>
+</div>
+<div id="lgm" class="section level2 unnumbered" number="">
+<h2>Gaussian variables (hiding in the wild)</h2>
+<p>To begin, let us examine two examples of a latent Gaussian model.</p>
+<div id="example1" class="section level3 unnumbered" number="">
+<h3>Example 1: sparse linear regression</h3>
+<p>Consider the following linear regression model
+<span class="math display">\[\begin{eqnarray*}
+  \phi &amp; \sim &amp; \pi(\phi),  \\
+  \beta &amp; \sim &amp; \mathrm{Normal}(0, \Sigma(\phi))  \\
+  y &amp; \sim &amp; \pi(y \mid X \beta),
+\end{eqnarray*}\]</span>
+where <span class="math inline">\(X\)</span> is a design matrix and <span class="math inline">\(\beta\)</span> the regression coefficients.
+The prior on <span class="math inline">\(\beta\)</span> may, for example, be a sparsity inducing prior.
+The above data generating process has a latent Gaussian model structure.
+Observe that each observation <span class="math inline">\(y_i\)</span> depends on a linear combination
+of the latent variables, <span class="math inline">\(\sum_j x_{ij} \beta_j\)</span>.</p>
+<p>We can reformulate this model by introducing another latent Gaussian variable,
+<span class="math inline">\(\theta = X \beta\)</span>.
+Now, <span class="math inline">\(y_i\)</span> only depends on <span class="math inline">\(\theta_i\)</span>, and the model is
+<span class="math display">\[\begin{eqnarray*}
+  \phi &amp; \sim &amp; \pi(\phi),  \\
+  \theta &amp; \sim &amp; \mathrm{Normal}(0, X \Sigma(\phi) X^T),  \\
+  y &amp; \sim &amp; \pi(y \mid \theta).
+\end{eqnarray*}\]</span>
+Both formulations are of interest.
+The first one is more natural, and emphasizes <span class="math inline">\(\beta\)</span>,
+presumably a variable of interest.
+The benefit of the second formulation is mostly technical:
+the likelihood <span class="math inline">\(\pi(y \mid \theta)\)</span>, as well as its higher-order derivatives,
+are easier to manipulate.</p>
+</div>
+<div id="example2" class="section level3 unnumbered" number="">
+<h3>Example 2: Gaussian process</h3>
+<p>The <span class="math inline">\(\theta\)</span>’s in equation <a href="#eq:lgm">(1)</a> can be the realizations of a Gaussian process – a non-parametric function –,
+which then inform the observational distribution of <span class="math inline">\(y\)</span>.
+For an introduction to the subject in Stan, see <span class="citation">Trangucci (2017)</span> and <span class="citation">Betancourt (2017)</span>.
+Quite remarkably, to model a Gaussian process, it suffices to study a finite number of realizations,
+which follow a normal distribution
+<span class="math display">\[
+  \theta \sim \mathrm{Normal}(0, K(\phi)).
+\]</span>
+Roughly speaking, the covariance, <span class="math inline">\(K\)</span>, controls how quickly and how much
+the Gaussian process varies.
+A classic example for <span class="math inline">\(K\)</span> is the squared exponential kernel, with <span class="math inline">\((i, j)^\mathrm{th}\)</span> element defined as
+<span class="math display">\[
+  K_{ij} = \alpha^2 \exp \left ( - \frac{||x_i - x_j||^2}{\rho^2} \right )
+\]</span>
+where <span class="math inline">\(x_i\)</span> designates the coordinate of observation <span class="math inline">\(y_i\)</span>.
+In certain applications, <span class="math inline">\(K\)</span> takes a much less trivial form, e.g. <span class="citation">(Agrawal et al. 2019)</span>.
+The hyperparameter in this example comprises <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\rho\)</span>,
+for which we can construct appropriate priors.</p>
+<p>Typically, <span class="math inline">\(\pi(y_i \mid \theta, \phi) = \pi(y_i \mid \theta_i, \phi)\)</span>,
+meaning that for each observation, the model includes a latent variable.
+There is no formal constraint on the likelihood.
+Some examples:</p>
+<ol style="list-style-type: lower-roman">
+<li><span class="math inline">\(\pi(y_i \mid \theta_i, \phi) = \mathrm{Normal}(\theta_i, \sigma^2)\)</span></li>
+<li><span class="math inline">\(\pi(y_i \mid \theta_i, \phi) = \mathrm{Poisson} \left ( \exp \theta_i \right)\)</span></li>
+<li><span class="math inline">\(\pi(y_i \mid \theta_i, \phi) = \mathrm{Bernoulli} ( \mathrm{logit} \theta_i)\)</span></li>
+</ol>
+</div>
+</div>
+<div id="bayesian" class="section level2 unnumbered" number="">
+<h2>Tools for Bayesian inference</h2>
+<p>Our goal is to characterize the posterior distribution
+<span class="math display">\[
+  \pi(\theta, \phi \mid y).
+\]</span>
+A tool of choice is Markov chains Monte Carlo (MCMC),
+and in particular the dynamic Hamiltonian Monte Carlo (HMC) sampler
+provided by Stan <span class="citation">(Betancourt 2018; Hoffman and Gelman 2014)</span>.</p>
+<p>MCMC has been widely successful in this setting
+but there are nevertheless known challenges when fitting
+multilevel models.
+The interaction between <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\theta\)</span> can indeed create complicated
+geometries, such as funnel shapes.
+When the Markov chain cannot overcome these geometric pathologies,
+we observe divergent transitions, indicating our inference may be bias.
+We can often bypass these issues by reparameterizing the model
+and fine-tuning HMC.
+But this process can be cumbersome, especially when working on
+computationally intensive models.
+Finding an acceptable parameterization and properly tuning HMC
+usually requires multiple fits,
+and the burden is that much more important when each fit takes
+several hours.
+One example is the prostate cancer classification model discussed
+by <span class="citation">(Piironen and Vehtari 2017)</span> and <span class="citation">(Margossian et al. 2020)</span>.</p>
+<p>Given much of our geometric grief comes from the interaction
+between <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\phi\)</span>, it stands to reason that
+we may alleviate these issues by marginalizing out <span class="math inline">\(\theta\)</span>
+and computing
+<span class="math display">\[
+  \pi(\phi \mid y) = \int \pi(\theta, \phi \mid y) \mathrm d \theta.
+\]</span>
+We can then run MCMC, or any standard inference technique, on <span class="math inline">\(\phi\)</span>.
+It is furthermore possible to recover samples for <span class="math inline">\(\theta\)</span>,
+if we can construct the conditional distribution
+<span class="math display">\[
+  \pi(\theta \mid \phi, y).
+\]</span></p>
+<p>Unfortunately, in all but a few simple cases
+we cannot calculate <span class="math inline">\(\pi(\phi \mid y)\)</span> and <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>.
+However, exploiting the fact <span class="math inline">\(\theta\)</span> has a normal prior,
+we can approximate these distributions using a Laplace approximation.</p>
+<div id="a" class="section level3 unnumbered" number="">
+<h3>Exact Marginalization</h3>
+<p>Let us now return to the Gaussian process we previously introduced.
+Suppose that the observational distribution is normal,
+with the <span class="math inline">\(y_i\)</span>’s independent and each only depending on <span class="math inline">\(\theta_i\)</span>.
+That is
+<span class="math display">\[\begin{eqnarray*}
+  \pi(\theta \mid \phi) &amp; = &amp; \mathrm{Normal}(0, K(\phi)),  \\
+  \pi(y \mid \theta, \phi) &amp; = &amp; \mathrm{Normal}(\theta, \sigma^2 I),
+\end{eqnarray*}\]</span>
+where <span class="math inline">\(I\)</span> is the identity matrix.
+Then
+<span class="math display">\[
+  \pi(y_i \mid \phi) = \mathrm{Normal}(0, K(\phi) + \sigma^2 I).
+\]</span>
+Using an argument of conjugacy,
+<!-- CHECK ME -->
+<span class="math display">\[
+  \pi(\theta \mid y, \phi) = \mathrm{Normal}
+    \left ( \left(K^{-1} + \frac{n}{\sigma^2} I \right)^{-1}
+      \frac{1}{\sigma^2} y, 
+      \left(K^{-1} + \frac{n}{\sigma^2} I \right)^{-1}
+      \right).
+\]</span></p>
+<p>These equations motivate the following approach to fit these models in Stan.</p>
+<ol style="list-style-type: decimal">
+<li>run HMC on <span class="math inline">\(\phi\)</span>, by encoding <span class="math inline">\(\pi(\phi)\)</span> and <span class="math inline">\(\pi(y \mid \phi)\)</span>
+in the <code>model</code> block.</li>
+<li>in <code>generated quantities</code>, sample <span class="math inline">\(\theta\)</span>
+from <span class="math inline">\(\pi(\theta \mid y, \phi)\)</span>.</li>
+</ol>
+<p>Efficient Stan code for this procedure can be found in the case study
+by <span class="citation">Betancourt (2017)</span>.</p>
+<p>What have we gain from doing this?
+The main benefit is that MCMC now only explores the parameter space
+of <span class="math inline">\(\phi\)</span>, which is geometrically better behaved.
+In some instances, <span class="math inline">\(\mathrm{dim}(\phi) \ll \mathrm{dim}(\theta)\)</span>,
+and the Monte Carlo problem becomes low dimensional,
+which can lead to an important speed up.
+Note that, when fitting this model, the computation is dominated
+by evaluation and differentiation of
+<span class="math inline">\(\log \pi(y \mid \phi) + \log \pi(\phi)\)</span>,
+which takes place several times per iteration.
+The sampling of <span class="math inline">\(\theta\)</span>, which requires no differentiation
+and only occurs once per iteration,
+is by comparison relatively cheap.</p>
+</div>
+<div id="b" class="section level3 unnumbered" number="">
+<h3>Approximate marginalization</h3>
+<p>Suppose now that the likelihood is not normal.
+For example it may be a Poisson log, meaning
+<span class="math display">\[\begin{equation}
+  \pi(y_i \mid \theta, \phi) = \mathrm{Poisson}(\exp \theta_i).
+\end{equation}\]</span>
+We no longer have an analytical expression for <span class="math inline">\(\pi(y \mid \theta)\)</span>
+and <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>.
+We can however approximate both using the Laplace approximation
+<span class="math display">\[
+  \pi_\mathcal{G}(\theta \mid \phi, y) \approx \pi(\theta \mid \phi, y).
+\]</span>
+The density on the left-hand side is a normal density
+that matches the mode, <span class="math inline">\(\theta^*\)</span>,
+and the curvature of the density of <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>.
+We numerically determine the mode using a Newton solver;
+the curvature itself is the negative Hessian of the log density.
+We then have
+<span class="math display">\[
+  \pi_\mathcal{G}(\phi \mid y) := \pi(\phi) \frac{\pi(\theta^* \mid \phi)
+    \pi(y \mid \theta^*, \phi)}{\pi_\mathcal{G}(\theta^* \mid \phi, y)}
+    \approx \pi(\phi \mid y).
+\]</span>
+Equipped with this approximation, we can repeat the previously described sampling scheme.</p>
+<p>But we now need to worry about the error this approximation introduces.
+When the likelihood is log-concave, <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>
+is guaranteed to be unimodal.
+Some common densities that are log-concave
+include the normal, Poisson, binomial, and negative binomial densities,
+and in those instances the approximation is found to be very accurate.
+The Bernoulli distribution also observes log-concavity
+but it is understood that the approximation introduces a bias.
+Detailed analysis of the error can be found in
+references (e.g. <span class="citation">Kuss and Rasmussen (2005)</span>, <span class="citation">Vanhatalo, Pietiläinen, and Vehtari (2010)</span>,
+<span class="citation">Cseke and Heskes (2011)</span>, <span class="citation">Vehtari et al. (2016)</span>).
+Evaluating the accuracy of the approximation for less traditional
+likelihoods constitutes a challenging and important avenue for future research.</p>
+</div>
+</div>
+<div id="c" class="section level2 unnumbered" number="">
+<h2>Prototype Stan code</h2>
+<p>To enable the above scheme, we propose a new routine in Stan,
+which includes functions to compute <span class="math inline">\(\log \pi_\mathcal{G}(y \mid \phi)\)</span>
+and sample from <span class="math inline">\(\pi_\mathcal{G}(\theta \mid \phi, y)\)</span>.</p>
+<p>The general form of the function is</p>
+<ul>
+<li><code>laplace_marginal_*</code>, which returns <span class="math inline">\(\log \pi_\mathcal{G}(y \mid \phi)\)</span>,
+where <code>*</code> is the name of the desired observational distribution,
+followed by <code>lpmf</code> for discrete observations
+and <code>lpdf</code> for continuous ones.</li>
+<li><code>laplace_*_rng</code>, which samples <span class="math inline">\(\theta\)</span> from <span class="math inline">\(\pi_\mathcal{G}(\theta \mid \phi, y)\)</span>.</li>
+</ul>
+<p>A use of the first function in the <code>model</code> block may look as follows</p>
+<pre><code>  target += laplace_marginal_*(y | n, K, phi, x, delta, delta_int, theta0);</code></pre>
+<p>In lieu of <code>*</code>, the user can specify an observational density by picking
+from a list of common likelihoods.
+<code>y</code> and <code>n</code> are sufficient statistics for the latent Gaussian variable <span class="math inline">\(\theta\)</span>.
+<code>K</code> is a function that returns the covariance matrix and takes in
+<code>phi</code>, <code>x</code>, <code>delta</code>, and <code>delta_int</code> as arguments.
+<code>theta_0</code> is the initial guess for the Newton solver we use to find the mode
+of <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>.
+In practice, setting <code>theta_0</code> to a vector of 0’s works reasonably well.</p>
+<p>The <code>laplace_*_rng</code> functions take in the same arguments and returns a vector.</p>
+<div id="d" class="section level3 unnumbered" number="">
+<h3>Picking the likelihood</h3>
+<p>We plan to develop the Laplace functions for a set of common likelihoods.
+Currently the options are the Poisson with a log link and the Bernoulli with a logit link.
+For these functions, the sufficient statistics are</p>
+<ul>
+<li><code>y</code>: <span class="math inline">\(\sum_{i \in g(i)} y_i\)</span>, the sum of counts / successes in a group,
+parameterized by <span class="math inline">\(\theta_i\)</span>.</li>
+<li><code>n</code>: <span class="math inline">\(\sum_{i \in g(i)} 1\)</span>, the number elements in a group parameterized by <span class="math inline">\(\theta _i\)</span>.</li>
+</ul>
+<p>Our aim is to make the routine more flexible and allow the user to
+specify their own likelihood, but this presents two challenges:
+(i) the approximation may introduce a large error which we cannot diagnose,
+and (ii) insuring efficient computation in this set up presents technical challenges.
+For more, see the discussion in <span class="citation">Margossian et al. (2020)</span>.</p>
+</div>
+<div id="e" class="section level3 unnumbered" number="">
+<h3>Specifying the covariance matrix</h3>
+<p>The user has full control over which covariance matrix they use.
+One of the technical innovation in our implementation is to support
+this flexibility while retaining computational efficiency,
+particularly as the dimension of <span class="math inline">\(\phi\)</span> increases.</p>
+<p><span class="math inline">\(K\)</span> is declared in the functions block and must of have one of two signatures:</p>
+<pre><code>matrix K(vector phi, matrix x, real[] delta, int[] delta_int) { }
+matrix K(vector phi, vector[] x, real[] delta, int[] delta_int) { }</code></pre>
+<p><code>phi</code> contains the parameter dependent variables (and informs which derivatives
+we compute when running HMC).
+The other arguments encompass real data required to compute <span class="math inline">\(K\)</span>,
+very much in the spirit of Stan’s numerical integrators and algebraic solvers.
+There are devices to “pack and unpack” the relevant variables.
+In future prototypes, this will be replaced with variadic arguments.</p>
+<p>For example, the squared exponential kernel can be encoded as follows:</p>
+<pre><code>functions {
+  matrix K (vector phi, vector[] x, real[] delta, int[] delta_int) {
+    real alpha = phi[1];
+    real rho = phi[2];
+    return add_diag(cov_exp_quad(x, alpha, rho), 1e-8);
+  }
+}</code></pre>
+<p>Note that we added a jitter term of 1e-8 along the diagonal of <span class="math inline">\(K\)</span> for numerical stability.</p>
+</div>
+</div>
+<div id="f" class="section level2 unnumbered" number="">
+<h2>Disease map of Finland</h2>
+<p>The disease map of Finland by
+<span class="citation">Vanhatalo, Pietiläinen, and Vehtari (2010)</span>,
+models the mortality count, due to alcoholism, across the country.
+The data is aggregated into <span class="math inline">\(n = 911\)</span> counties.
+For computational convenience, we use <span class="math inline">\(n_\mathrm{obs} = 100\)</span> randomly sampled counties.
+As data we have <span class="math inline">\(x\)</span>, the spatial coordinate of each county,
+<span class="math inline">\(y\)</span>, the count of deaths and <span class="math inline">\(y_e\)</span>, the standardized expected number of deaths.</p>
+<div id="g" class="section level3 unnumbered" number="">
+<h3>Building the model</h3>
+<p>We start with the <code>data block</code>:</p>
+<pre><code>data {
+  int n_obs;                       // number of counties
+  int n_coordinates;               // number of spatial dimension
+  int y[n_obs];                    // death counts in each county
+  vector[n_obs] ye;                // standardized expected number of deaths
+  vector[n_coordinates] x[n_obs];  // coordinates for each county.
+}</code></pre>
+<p>The disease is modeled using a Gaussian process and for each county
+we assign a latent realization of the process, <span class="math inline">\(\theta_i\)</span>.
+The likelihood is log Poisson, with an adjustment to the mean,
+<span class="math display">\[
+  \pi(y_i \mid \theta) = \mathrm{Poisson} \left (y^i_e e^{\theta_i} \right). 
+\]</span>
+The Gaussian process itself is governed by a squared exponential kernel,
+with two hyper parameters: <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\rho\)</span>.
+Our plan is to marginalize <span class="math inline">\(\theta\)</span> out, so we only sample <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\rho\)</span>
+with HMC.</p>
+<pre><code>parameters {
+  real&lt;lower = 0&gt; alpha;
+  real&lt;lower = 0&gt; rho;
+}</code></pre>
+<p>In the model block, we specify our priors on <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\rho\)</span>,
+which will be inverse-Gamma, and we increment the target density
+with the approximate marginal density, <span class="math inline">\(\log \pi_\mathcal{G}(y \mid \alpha, \rho)\)</span>.</p>
+<pre><code>model {
+  rho ~ inv_gamma(rho_location_prior, rho_scale_prior);
+  alpha ~ inv_gamma(alpha_location_prior, alpha_scale_prior);
+  
+  target += laplace_marginal_poisson_log_lpmf(y | n_samples, ye, K,
+                                         phi, x, delta, delta_int, theta_0);
+}</code></pre>
+<p>Note that the function allows the user to pass <code>ye</code> as an additional argument.
+We now need to fill in some gaps. The location and scale parameters for the priors
+on <span class="math inline">\(\rho\)</span> and <span class="math inline">\(\alpha\)</span> can be passed as data.
+<code>K</code> is specified in the functions block.
+In the <code>transformed data</code> and <code>transformed parameters</code> block, we specify
+the remaining arguments of <code>laplace_marginal_log_poisson</code>.</p>
+<pre><code>transformed data {
+  vector[n_obs] theta_0 = rep_vector(0, n_obs);  // initial guess
+  real delta[0];                                 // dummy argument
+  int delta_int[0];                              // dummy argument
+  int n_samples[n_obs] = rep_array(1, n_obs);    // observations per counties
+  int n_phi = 2;                                 // size of phi
+}
+
+. . . 
+
+transformed parameters {
+  vector[n_phi] phi = to_vector({alpha, rho});
+}</code></pre>
+<p>Finally, we generate posterior samples for <span class="math inline">\(\theta\)</span> post-hoc.</p>
+<pre><code>generated quantities {
+  vector[n_obs] theta
+    = laplace_poisson_log_rng(y, n_samples, ye, K,
+                              phi, x, delta, delta_int, theta_0);
+}</code></pre>
+<p>The full Stan model can be found in <code>model/disease_map_ela.stan</code>.</p>
+</div>
+<div id="r" class="section level3 unnumbered" number="">
+<h3>Fitting the model in R</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Read in data for 100 randomly sampled counties</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>data &lt;-<span class="st"> </span><span class="kw">read_rdump</span>(<span class="st">&quot;script/data/disease_100.data.r&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co"># Compile and fit the model with CmdStanR</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>modelName &lt;-<span class="st"> &quot;disease_map_ela.stan&quot;</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="kw">paste0</span>(<span class="st">&quot;script/model/&quot;</span>, modelName))</span>
+<span id="cb11-7"><a href="#cb11-7"></a></span>
+<span id="cb11-8"><a href="#cb11-8"></a>num_chains &lt;-<span class="st"> </span><span class="dv">4</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>num_cores &lt;-<span class="st"> </span><span class="kw">min</span>(num_chains, <span class="kw">detectCores</span>())</span>
+<span id="cb11-10"><a href="#cb11-10"></a>fit &lt;-<span class="st"> </span>mod<span class="op">$</span><span class="kw">sample</span>(</span>
+<span id="cb11-11"><a href="#cb11-11"></a>  <span class="dt">data =</span> data, <span class="dt">chains =</span> num_chains, <span class="dt">parallel_chains =</span> num_cores,</span>
+<span id="cb11-12"><a href="#cb11-12"></a>  <span class="dt">iter_warmup =</span> <span class="dv">1000</span>, <span class="dt">iter_sampling =</span> <span class="dv">1000</span>, <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
+<pre><code>## Running MCMC with 4 parallel chains...
+## 
+## Chain 2 finished in 44.9 seconds.
+## Chain 3 finished in 46.3 seconds.
+## Chain 1 finished in 47.3 seconds.
+## Chain 4 finished in 47.9 seconds.
+## 
+## All 4 chains finished successfully.
+## Mean chain execution time: 46.6 seconds.
+## Total execution time: 48.0 seconds.</code></pre>
+<p>There are no warning messages.
+Let’s examine a summary of our fit for certain parameters of interest.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>fit<span class="op">$</span><span class="kw">summary</span>(<span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;rho&quot;</span>, <span class="st">&quot;theta[1]&quot;</span>, <span class="st">&quot;theta[2]&quot;</span>))</span></code></pre></div>
+<pre><code>## # A tibble: 5 x 10
+##   variable     mean   median      sd    mad       q5      q95  rhat ess_bulk
+##   &lt;chr&gt;       &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+## 1 lp__     -3.46e+2 -3.46e+2  1.07   0.816  -3.48e+2 -3.45e+2  1.00    1283.
+## 2 alpha     7.28e-1  6.95e-1  0.207  0.178   4.56e-1  1.10e+0  1.00    1754.
+## 3 rho       2.02e+1  1.76e+1 10.0    6.00    1.05e+1  3.91e+1  1.00    1583.
+## 4 theta[1] -9.17e-2 -9.08e-2  0.0245 0.0236 -1.32e-1 -5.27e-2  1.00    4041.
+## 5 theta[2]  2.22e-1  2.21e-1  0.0793 0.0734  9.20e-2  3.48e-1  1.00    3909.
+## # … with 1 more variable: ess_tail &lt;dbl&gt;</code></pre>
+<p>For the examined parameters, <span class="math inline">\(\hat R &lt; 1.01\)</span>, and the effective sample sizes
+(<code>ess_bulk</code> and <code>ess_tail</code>) are large.
+We may do further checks, such as examine the trace and density plots, to make sure our inference is reliable.</p>
+<p>There are several ways to inspect the results
+and for a more detailed analysis,
+we refer the reader to <span class="citation">Vanhatalo, Pietiläinen, and Vehtari (2010)</span>.
+In this notebook, we simply plot the mean Poisson log
+parameter, <span class="math inline">\(\theta\)</span>, for each county.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>theta_mean &lt;-<span class="st"> </span>fit<span class="op">$</span><span class="kw">summary</span>()[<span class="dv">6</span><span class="op">:</span><span class="dv">105</span>, <span class="dv">2</span>]<span class="op">$</span>mean</span>
+<span id="cb15-2"><a href="#cb15-2"></a></span>
+<span id="cb15-3"><a href="#cb15-3"></a>plot_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> data<span class="op">$</span>x[, <span class="dv">1</span>],</span>
+<span id="cb15-4"><a href="#cb15-4"></a>                        <span class="dt">x2 =</span> data<span class="op">$</span>x[, <span class="dv">2</span>],</span>
+<span id="cb15-5"><a href="#cb15-5"></a>                        <span class="dt">theta_mean =</span> theta_mean)</span>
+<span id="cb15-6"><a href="#cb15-6"></a></span>
+<span id="cb15-7"><a href="#cb15-7"></a>plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> plot_data,</span>
+<span id="cb15-8"><a href="#cb15-8"></a>               <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">color =</span> theta_mean)) <span class="op">+</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a><span class="st">  </span><span class="kw">scale_color_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">mid =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb15-11"><a href="#cb15-11"></a>plot</span></code></pre></div>
+<p><img src="submission_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>This plot highlights regions which, per our analysis,
+are more at risk.
+There are several limitations worth pointing out.
+First we only used 100 counties, so the resolution is limited.
+It is of course possible to run the analysis on all 911 counties and get more fine-grained results.
+Secondly, this plot does not capture the posterior variance
+of our estimates.
+Including this information in a map is tricky,
+but strategies exist (e.g. use multiple maps).</p>
+</div>
+<div id="l" class="section level3 unnumbered" number="">
+<h3>Comparison to inference on the exact model</h3>
+<p>It is possible to fit this model without marginalizing
+<span class="math inline">\(\theta\)</span> out.
+To do this, we must include <span class="math inline">\(\theta\)</span> in the <code>parameters</code>
+block, and revise the <code>models</code> block
+to explicitly encode the full data generating process.
+The Markov chain must now explore
+the full parameter space, <span class="math inline">\((\alpha, \rho, \theta)\)</span>.
+We will refer to this approach as <em>full HMC</em>.</p>
+<p>The geometry of the posterior can be challenging
+for full HMC, a problem we diagnose with divergent transitions.
+To remove these issues,
+we can use a <em>non-centered parameterization</em>
+and increase the <em>target step size</em>, <span class="math inline">\(\delta_a\)</span>
+(argument <code>adapt_delta</code> in the sample method)
+from its default 0.8 to 0.99.
+The relevant changes in the model look as follows.</p>
+<pre><code>parameters {
+  real&lt;lower = 0&gt; alpha;
+  real&lt;lower = 0&gt; rho;
+  vector[n_obs] eta;
+}
+
+transformed parameters {
+   vector[n_obs] theta;
+   {
+     matrix[n_obs, n_obs] L_Sigma;
+     matrix[n_obs, n_obs] Sigma;
+     Sigma = cov_exp_quad(x, alpha, rho);
+     for (n in 1:n_obs) Sigma[n, n] = Sigma[n,n] + delta;
+     L_Sigma = cholesky_decompose(Sigma);
+     theta = L_Sigma * eta;
+   }
+}
+
+model {
+  rho ~ inv_gamma(rho_location_prior, rho_scale_prior);
+  alpha ~ inv_gamma(alpha_location_prior, alpha_scale_prior);
+
+  eta ~ normal(0, 1);
+  y ~ poisson_log(log(ye) + theta);
+}</code></pre>
+<p>The full model is in <code>model/disease_map.stan</code>.</p>
+<p>We find that both exact and approximate inference return
+posterior samples for <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\rho\)</span>, and <span class="math inline">\(\theta\)</span>,
+which are in close agreement
+(see <span class="citation">Margossian et al. (2020)</span>).
+This is consistent with the literature,
+where the embedded Laplace approximation has been shown
+to be very accurate for a Poisson log likelihood.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;figures/gp_sample_comp.png&quot;</span>)</span></code></pre></div>
+<p><img src="figures/gp_sample_comp.png" width="50%" style="display: block; margin: auto;" /></p>
+<p>Much like in the case of a Gaussian likelihood,
+using approximate inference presents two advantages:
+(i) it requires no reparameterization,
+nor any tuning of Stan’s HMC;
+and (ii) even after the exact model has been properly tuned,
+the approximate model runs much faster.
+Examining the effective sample size per second,
+we find the benefit to be an order of magnitude.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;figures/gp_eff_comp.png&quot;</span>)</span></code></pre></div>
+<p><img src="figures/gp_eff_comp.png" width="50%" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="skim" class="section level2 unnumbered" number="">
+<h2>Sparse kernel interaction model</h2>
+<p>In this next example, we examine a prostate cancer
+classification data set<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>.
+The goal of the study is to identify predictors of the
+development of prostate cancer.
+For each patient, <span class="math inline">\(d \approx 6,000\)</span> covariates are measured,
+and a binary variable indicates whether or not
+the patient develops cancer.
+The data set includes <span class="math inline">\(n = 102\)</span> patients.</p>
+<div id="building" class="section level3 unnumbered" number="">
+<h3>Building the model</h3>
+<p>As a predictive model, we use a general linear regression model,
+with a Bernoulli observational distribution.
+Let <span class="math inline">\(y\)</span> be the observations, <span class="math inline">\(X\)</span> the design matrix,
+<span class="math inline">\(\beta\)</span> the regression coefficients,
+and <span class="math inline">\(\beta_0\)</span> the intercept term. Then</p>
+<p><span class="math display">\[
+  y \sim \mathrm{Bernoulli \left( \mathrm{logit}(\beta_0 + X \beta) \right)}.
+\]</span></p>
+<p>Even though <span class="math inline">\(d\)</span> is very large, we believe only a small
+faction of the covariates are relevant.
+To reflect this belief, we construct a <em>regularized horseshoe prior</em>
+<span class="citation">(Piironen and Vehtari 2017)</span>.
+This prior operates a soft selection,
+favoring <span class="math inline">\(\beta_i \approx 0\)</span> or <span class="math inline">\(\beta_i \approx \hat \beta_i\)</span>,
+where <span class="math inline">\(\hat \beta_i\)</span> is the maximum likelihood estimate.
+A local scale parameter, <span class="math inline">\(\lambda_j\)</span>, controls the shrinkage
+of <span class="math inline">\(\beta_j\)</span>
+(to be precise, a transformation of <span class="math inline">\(\lambda_j\)</span> acts as the regularizer;
+we denote this transformation <span class="math inline">\(\tilde \lambda_j\)</span>).
+There is also a global scale parameter, <span class="math inline">\(\tau\)</span>,
+which regularizes unshrunk <span class="math inline">\(\beta\)</span>s
+and operates a soft truncation of the extreme tails.
+For details, we refer the reader to <span class="citation">Piironen and Vehtari (2017)</span>
+and appendix E.2 of <span class="citation">Margossian et al. (2020)</span>.</p>
+<p>If we extend the above model to account for pairwise interactions
+between the covariates, we obtain a <em>sparse kernel interaction model</em>
+(SKIM) <span class="citation">(Agrawal et al. 2019)</span>.
+The priors on the coefficient is then the following:
+<span class="math display">\[\begin{eqnarray*}
+  \eta, \tilde \lambda, \tau, c_0 &amp; \sim &amp; 
+      \pi(\eta) \pi(\tilde \lambda) \pi(\tau) \pi(c_0), \\
+  \beta_i &amp; \sim &amp; \mathrm{Normal}(0, \tau^2 \tilde \lambda_i^2), \\
+  \beta_{ij} &amp; \sim &amp; 
+    \mathrm{Normal}(0, \eta^2_2 \tilde \lambda_i^2 \tilde \lambda_j^2), \\
+  \beta_0 &amp; \sim &amp; \mathrm{Normal}(0, c_0^2),
+\end{eqnarray*}\]</span>
+where <span class="math inline">\(\eta_2\)</span> regulates interaction terms and <span class="math inline">\(c_0\)</span> the intercept.</p>
+<p>With a large number of coefficients and an exponentially
+large number of interaction terms, this becomes a formidable
+model to fit!
+To improve computation, <span class="citation">Agrawal et al. (2019)</span> propose a “kernel trick”,
+whereby we recast the model as a Gaussian process.
+Let <span class="math inline">\(\phi\)</span> denote the hyperparameters. Then
+<span class="math display">\[\begin{eqnarray*}
+  \phi &amp; \sim &amp; \pi(\phi),  \\
+  f &amp; \sim &amp; \mathrm{Normal(0, K(\phi))}, \\
+  y_i &amp; \sim &amp; \mathrm{Bernoulli(logit}f_i)).
+\end{eqnarray*}\]</span></p>
+<p>This time, the covariance matrix is rather intricate.
+We first compute intermediate values:
+<span class="math display">\[\begin{eqnarray*}
+    K_1 &amp; = &amp; X \ \mathrm{diag}(\tilde{\lambda}^2) \ X^T, \\
+    K_2 &amp; = &amp; [X \circ X] \ \mathrm{diag}(\tilde{\lambda}^2) \ [X \circ X]^T,
+\end{eqnarray*}\]</span>
+where “<span class="math inline">\(\circ\)</span>” denotes the element-wise Hadamard product.
+Then
+<span class="math display">\[\begin{eqnarray*}
+    K &amp; = &amp; \frac{1}{2} \eta_2^2 (K_1 + 1) \circ (K_1 + 1) - \frac{1}{2} \eta_2^2 K_2
+    - (\tau^2 - \eta_2^2) K_1 \\ 
+    &amp; &amp; + c_0^2  - \frac{1}{2} \eta_2^2.
+\end{eqnarray*}\]</span>
+For more details, see <span class="citation">Agrawal et al. (2019)</span> and
+Appendix E.3 of <span class="citation">Margossian et al. (2020)</span>.</p>
+<p>As this is a Gaussian process, we can use the Laplace approximation
+to marginalize out <span class="math inline">\(f\)</span>.
+This time, the observational model is Bernoulli with
+a logit link.
+Accordingly, we use</p>
+<pre><code>target += laplace_marginal_bernoulli_logit_lpmf(y | n_samples, K, ...);</code></pre>
+<p>The probability of developing cancer for each patient is estimated
+in the <code>generated quantities block</code>:</p>
+<pre><code>  vector[n] p = inv_logit(
+    laplace_bernoulli_logit_rng(y, n_samples, K, ...)
+    );</code></pre>
+<p>The full Stan code can be found in <code>model/skim_logit_ela.stan</code>.</p>
+</div>
+<div id="inf" class="section level3 unnumbered" number="">
+<h3>Fitting the model in R</h3>
+<p>For computational convenience, we restrict our attention to only 200 covariates.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>data &lt;-<span class="st"> </span><span class="kw">read_rdump</span>(<span class="st">&quot;script/data/prostate_200.data.r&quot;</span>)</span>
+<span id="cb21-2"><a href="#cb21-2"></a></span>
+<span id="cb21-3"><a href="#cb21-3"></a>modelName &lt;-<span class="st"> &quot;skim_logit_ela&quot;</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="kw">paste0</span>(<span class="st">&quot;script/model/&quot;</span>, modelName, <span class="st">&quot;.stan&quot;</span>))</span></code></pre></div>
+<pre><code>## Model executable is up to date!</code></pre>
+<p>To identify covariates which are softly selected,
+we examine the <span class="math inline">\(90^\mathrm{th}\)</span> quantile of <span class="math inline">\(\log \lambda\)</span>.
+Estimates of extreme quantiles tend to have a large variance,
+hence it is helpful to run a large number of samples.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># num_chains = 4</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="co"># num_cores = 4</span></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="co"># fit &lt;- mod$sample(</span></span>
+<span id="cb23-4"><a href="#cb23-4"></a><span class="co">#   data = data, chains = num_chains,</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a><span class="co">#   parallel_chains = num_cores,</span></span>
+<span id="cb23-6"><a href="#cb23-6"></a><span class="co">#   iter_warmup = 1000, iter_sampling = 2000, seed = 123,</span></span>
+<span id="cb23-7"><a href="#cb23-7"></a><span class="co">#   refresh = 0</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a><span class="co"># )</span></span>
+<span id="cb23-9"><a href="#cb23-9"></a><span class="co"># fit_laplace &lt;- read_stan_csv(fit$output_files())</span></span>
+<span id="cb23-10"><a href="#cb23-10"></a></span>
+<span id="cb23-11"><a href="#cb23-11"></a><span class="co"># For convenience, read in saved fit</span></span>
+<span id="cb23-12"><a href="#cb23-12"></a>modelName &lt;-<span class="st"> &quot;skim_logit_ela&quot;</span></span>
+<span id="cb23-13"><a href="#cb23-13"></a>fit_laplace &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="kw">paste0</span>(<span class="st">&quot;script/saved_fit/&quot;</span>, modelName, <span class="st">&quot;.RSave&quot;</span>))</span></code></pre></div>
+<p>As before, we examine a summary of the posterior draws for certain
+parameters of interest.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>pars =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;eta_two&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;lambda[1]&quot;</span>, <span class="st">&quot;lambda[2]&quot;</span>)</span>
+<span id="cb24-2"><a href="#cb24-2"></a><span class="kw">summary</span>(fit_laplace, <span class="dt">pars =</span> pars)[<span class="dv">1</span>]</span></code></pre></div>
+<pre><code>## $summary
+##                    mean      se_mean           sd          2.5%           25%
+## lp__      -416.33828837 0.2589174216 12.980729963 -4.427790e+02 -4.248975e+02
+## eta_two      0.00582577 0.0001096917  0.008695149  1.042964e-04  1.093525e-03
+## tau         12.45151872 0.1146143609  8.429251147  1.953032e+00  6.389118e+00
+## lambda[1]    6.10742691 1.3814246391 83.484050409  4.217087e-02  4.174565e-01
+## lambda[2]    4.47762771 0.7661252360 63.871829019  3.942981e-02  4.156833e-01
+##                    50%           75%         97.5%    n_eff      Rhat
+## lp__      -415.8905000 -4.073578e+02 -392.39685000 2513.481 1.0007699
+## eta_two      0.0029547  6.993395e-03    0.02892288 6283.569 0.9999704
+## tau         10.6513500  1.639575e+01   33.90038000 5408.787 0.9999637
+## lambda[1]    1.0065250  2.392453e+00   25.04534500 3652.184 1.0002984
+## lambda[2]    0.9709115  2.268203e+00   20.23611500 6950.550 1.0003059</code></pre>
+<p>To identify softly selected variables, we load two custom R functions
+from the script <code>tools.r</code>.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">source</span>(<span class="st">&quot;script/tools.r&quot;</span>)</span>
+<span id="cb26-2"><a href="#cb26-2"></a></span>
+<span id="cb26-3"><a href="#cb26-3"></a><span class="co"># plot the 90th quantiles of all covariates.</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>quant =<span class="st"> </span><span class="fl">0.9</span></span>
+<span id="cb26-5"><a href="#cb26-5"></a>lambda &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">extract</span>(fit_laplace, <span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&quot;lambda&quot;</span>))<span class="op">$</span>lambda</span>
+<span id="cb26-6"><a href="#cb26-6"></a>log_lambda_laplace &lt;-<span class="st"> </span><span class="kw">log</span>(lambda)</span>
+<span id="cb26-7"><a href="#cb26-7"></a><span class="kw">quant_select_plot</span>(log_lambda_laplace, quant, <span class="dt">threshold =</span> <span class="fl">2.4</span>) <span class="op">+</span></span>
+<span id="cb26-8"><a href="#cb26-8"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
+<p><img src="submission_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>From this plot, it is clear that the <span class="math inline">\(86^\mathrm{th}\)</span> covariate
+is strongly selected.
+A handful of other covariates also stand out.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="co"># select the top 6 covariates</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="kw">select_lambda</span>(log_lambda_laplace, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
+<pre><code>## [1]  86 179 160  81  54 120</code></pre>
+</div>
+<div id="comp" class="section level3 unnumbered" number="">
+<h3>Comparison to inference on the exact model</h3>
+<p>As before, we can fit the model without marginalizing <span class="math inline">\(\theta\)</span> out.
+This requires using a non-centered parameterization,
+and increasing <span class="math inline">\(\delta_a\)</span> (<code>adapt_delta</code>) in order to remove divergent
+transitions.
+The Stan model can be found in <code>script/model/skim_logit.stan</code>.</p>
+<p>By contrast, the embedded Laplace approximation,
+with Stan’s default tuning parameters, produces no warning messages.
+This indicates Stan’s HMC works well on the <em>approximate model</em>.
+However, when using a Bernoulli observational model,
+the approximation introduces a bias, which may be more or less
+important depending on the quantity of interest.</p>
+<p>To see the difference, we fit the model using full HMC.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="co"># load saved rstan_fit</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>modelName &lt;-<span class="st"> &quot;skim_logit&quot;</span></span>
+<span id="cb29-3"><a href="#cb29-3"></a>fit_full &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="kw">paste0</span>(<span class="st">&quot;script/saved_fit/&quot;</span>, modelName, <span class="st">&quot;.RSave&quot;</span>))</span></code></pre></div>
+<p>As before, we inspect the <span class="math inline">\(90^\mathrm{th}\)</span> quantile of <span class="math inline">\(\log \lambda\)</span>
+to see which variables get softly selected.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>log_lambda_full &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="kw">extract</span>(fit_full, <span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&quot;lambda&quot;</span>))<span class="op">$</span>lambda)</span>
+<span id="cb30-2"><a href="#cb30-2"></a></span>
+<span id="cb30-3"><a href="#cb30-3"></a><span class="kw">quant_select_plot2</span>(log_lambda_full, log_lambda_laplace, quant, <span class="dt">threshold =</span> <span class="fl">2.4</span>,</span>
+<span id="cb30-4"><a href="#cb30-4"></a>                   <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
+<span id="cb30-5"><a href="#cb30-5"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
+<p><img src="submission_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="co"># select the top 6 covariates from the model fitted with full HMC</span></span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="kw">select_lambda</span>(log_lambda_full, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
+<pre><code>## [1]  86  81 179 160 120 151</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="co"># select the top 6 covariates from the approximate model</span></span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="kw">select_lambda</span>(log_lambda_laplace, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
+<pre><code>## [1]  86 179 160  81  54 120</code></pre>
+<p>There is disagreement between the estimated quantiles.
+This is both due to the approximation bias and the usually high noise
+in estimates of extreme quantiles.
+Still both models identify the relevant covariates, though they do not
+fully agree about their order.</p>
+<p>We can also compare the expected probability of developing cancer.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>p_laplace &lt;-<span class="st"> </span><span class="kw">colMeans</span>(<span class="kw">na.omit</span>(<span class="kw">extract</span>(fit_laplace, <span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&quot;p&quot;</span>))<span class="op">$</span>p))</span>
+<span id="cb35-2"><a href="#cb35-2"></a>p_full &lt;-<span class="st"> </span><span class="kw">colMeans</span>(<span class="kw">na.omit</span>(<span class="kw">extract</span>(fit_full, <span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&quot;p&quot;</span>))<span class="op">$</span>p))</span>
+<span id="cb35-3"><a href="#cb35-3"></a></span>
+<span id="cb35-4"><a href="#cb35-4"></a>plot_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(p_full, p_laplace)</span>
+<span id="cb35-5"><a href="#cb35-5"></a>plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> plot_data, <span class="kw">aes</span>(<span class="dt">x =</span> p_full, <span class="dt">y =</span> p_laplace)) <span class="op">+</span></span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb35-7"><a href="#cb35-7"></a><span class="st">  </span><span class="kw">geom_abline</span>(<span class="dt">intercept =</span> <span class="dv">0</span>, <span class="dt">slope =</span> <span class="dv">1</span>,</span>
+<span id="cb35-8"><a href="#cb35-8"></a>              <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, </span>
+<span id="cb35-9"><a href="#cb35-9"></a>              <span class="dt">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="dt">size =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
+<span id="cb35-10"><a href="#cb35-10"></a><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Probability (full HMC)&quot;</span>) <span class="op">+</span></span>
+<span id="cb35-11"><a href="#cb35-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Probability (HMC + Laplace)&quot;</span>) <span class="op">+</span></span>
+<span id="cb35-12"><a href="#cb35-12"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">15</span>))</span>
+<span id="cb35-13"><a href="#cb35-13"></a>plot</span></code></pre></div>
+<p><img src="submission_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>From the literature, we expect the probability to be more conservative
+when using the embedded Laplace approximation;
+nevertheless, the estimated probabilities are in close agreement.
+The reader may find a more detailed analysis in <span class="citation">Margossian et al. (2020)</span>.
+In particular when examining the posterior distribution of certain
+hyperparameters, the bias becomes more apparent.</p>
+<p>The embedded Laplace approximation runs a bit faster
+than the well-tuned full HMC for <span class="math inline">\(d = 200\)</span>.
+When <span class="math inline">\(d\)</span> increases, the difference becomes more important.
+But for this example the main benefit of the approximation
+is to save user time,
+rather than computation time.</p>
+</div>
+</div>
+<div id="discussion" class="section level2 unnumbered" number="">
+<h2>Discussion</h2>
+<p>The routines presented here allow users to couple Stan’s dynamic HMC
+with an embedded Laplace approximation.</p>
+<p>Is the approximation accurate?
+In this first example we treat
+– the disease map with a Poisson log likelihood –
+we find the posterior samples to be in close agreement
+with the ones generated by full HMC.
+This is expected for log concave likelihoods,
+with, as a noteworthy exception, the Bernoulli distribution.
+In the second example – the SKIM –,
+the approximation introduces a notable bias,
+but retains accuracy for several quantities of interest.
+Our recommendation when using this method is therefore:
+know your goals and proceed with caution.</p>
+<p>The benefit of the embedded Laplace approximation is that, generally speaking,
+the approximate model generates a posterior distribution
+with a well-behaved geometry.
+This means we do not need to fine tune HMC,
+and in some cases, we also get a dramatic speedup.
+One of the strengths of our implementation is that it can
+accommodate any user-specified covariance matrix, <span class="math inline">\(K\)</span>,
+and scales when <span class="math inline">\(\phi\)</span> is high-dimensional.
+The method will further benefit from high-performance routines,
+that exploit matrix sparsity, GPUs, and parallelization.</p>
+<p>The embedded Laplace approximation does however not give the user
+as much flexibility as one might desire.
+Indeed, the user can currently not
+specify an arbitrary likelihood, <span class="math inline">\(\pi(y \mid \theta, \phi)\)</span>,
+and this for two reasons:
+(i) to realistically use the embedded Laplace approximation we need an
+<em>efficient</em> method to propagate third-order derivatives
+through <span class="math inline">\(\log \pi(y \mid \theta, \phi)\)</span>,
+and (ii) given the approximation may not be accurate for an arbitrary
+likelihood, the method must be complemented with reliable diagnostics.
+Future work will investigate how to overcome these challenges
+and build a more general approximation scheme.</p>
+</div>
+<div id="my-section" class="section level2 unnumbered" number="">
+<h2>References</h2>
+<div id="refs" class="references hanging-indent">
+<div>
+<p>Agrawal, Raj, Jonathan H Huggins, Brians Trippe, and Tamara Broderick. 2019. “The Kernel Interaction Trick: Fast Bayesian Discovery of Pairwise Interactions in High Dimensions.” <em>Proceedings of the 36th International Conference on Machine Learning</em> 97.</p>
+</div>
+<div>
+<p>Betancourt, Michael. 2017. “Robust Gaussian Processes in Stan.” <a href="ttps://github.com/betanalpha/knitr_case_studies/tree/master/gaussian_processes">ttps://github.com/betanalpha/knitr_case_studies/tree/master/gaussian_processes</a>.</p>
+</div>
+<div>
+<p>———. 2018. “A Conceptual Introduction to Hamiltonian Monte Carlo.” <em>arXiv:1701.02434v1</em>.</p>
+</div>
+<div>
+<p>Betancourt, Michael, and Mark Girolami. 2013. “Hamiltonian Monte Carlo for Hierarchical Models.” <em>arXiv:1312.0906v1</em>. <a href="https://doi.org/10.1201/b18502-5">https://doi.org/10.1201/b18502-5</a>.</p>
+</div>
+<div>
+<p>Cseke, Botond, and Tom Heskes. 2011. “Approximate Marginals in Latent Gaussian Models.” <em>Journal of Machine Learning Research</em> 12 (2).</p>
+</div>
+<div>
+<p>Hoffman, Matthew D., and Andrew Gelman. 2014. “The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo.” <em>Journal of Machine Learning Research</em> 15 (1): 1593–1623.</p>
+</div>
+<div>
+<p>Kristensen, Kasper, Anders Nielsen, Casper W Berg, Hans Skaug, and Bradley M Bell. 2016. “TMB: Automatic Differentiation and Laplace Approximation.” <em>Journal of Statistical Software</em> 70 (5): 1–21.</p>
+</div>
+<div>
+<p>Kuss, Malte, and Carl E Rasmussen. 2005. “Assessing Approximate Inference for Binary Gaussian Process Classification.” <em>Journal of Machine Learning Research</em> 6: 1679–1704.</p>
+</div>
+<div>
+<p>Margossian, Charles C, Aki Vehtari, Daniel Simpson, and Raj Agrawal. 2020. “Hamiltonian Monte Carlo Using an Adjoint-Differentiated Laplace Approximation.” <em>arXiv:2004.12550</em>.</p>
+</div>
+<div>
+<p>Neal, Radford M. 2003. “Slice Sampling.” <em>Annals of Statistics</em> 31 (3): 705–67.</p>
+</div>
+<div>
+<p>Piironen, Juho, and Aki Vehtari. 2017. “Sparsity Information and Regularization in the Horseshoe and Other Shrinkage Priors.” <em>Electronic Journal of Statistics</em> 11 (2): 5018–51.</p>
+</div>
+<div>
+<p>Rasmussen, C. E., and C. K. I. Williams. 2006. <em>Gaussian Processes for Machine Learning</em>. The MIT Press.</p>
+</div>
+<div>
+<p>Rue, Havard, and Nicolas Chopin. 2009. “Approximate Bayesian Inference for Latent Gaussian Models by Using Integrated Nested Laplace Approximations.” <em>Journal of Royal Statistics B</em> 71 (2): 319–92.</p>
+</div>
+<div>
+<p>Rue, Havard, Andrea Riebler, Sigrunn Sorbye, Janine Illian, Daniel Simson, and Finn Lindgren. 2017. “Bayesian Computing with INLA: A Review.” <em>Annual Review of Statistics and Its Application</em> 4: 395–421. <a href="https://doi.org/https://doi.org/10.1146/annurev-statistics-060116-054045">https://doi.org/https://doi.org/10.1146/annurev-statistics-060116-054045</a>.</p>
+</div>
+<div>
+<p>Trangucci, Rob. 2017. “Hierarchical Gaussian Processes in Stan.” <a href="https://doi.org/10.5281/zenodo.1284293">https://doi.org/10.5281/zenodo.1284293</a>.</p>
+</div>
+<div>
+<p>Vanhatalo, Jarno, Ville Pietiläinen, and Aki Vehtari. 2010. “Approximate Inference for Disease Mapping with Sparse Gaussian Processes.” <em>Statistics in Medicine</em> 29 (15): 1580–1607.</p>
+</div>
+<div>
+<p>Vanhatalo, Jarno, Jaakko Riihimäki, Jouni Hartikainen, Pasi Jylänki, Ville Tolvanen, and Aki Vehtari. 2013. “GPstuff: Bayesian Modeling with Gaussian Processes.” <em>Journal of Machine Learning Research</em> 14: 1175–9.</p>
+</div>
+<div>
+<p>Vehtari, Aki, Tommi Mononen, Ville Tolvanen, Tuomas Sivula, and Ole Winther. 2016. “Bayesian Leave-One-Out Cross-Validation Approximations for Gaussian Latent Variable Models.” <em>Journal of Machine Learning Research</em> 17 (103): 1–38. <a href="http://jmlr.org/papers/v17/14-540.html">http://jmlr.org/papers/v17/14-540.html</a>.</p>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="footnotes">
+<hr />
+<ol start="1">
+<li id="fn1"><p>Department of Statistics, Columbia University; contact – <a href="mailto:charles.margossian@columbia.edu" class="email">charles.margossian@columbia.edu</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Department of Computer Science, Aalto University<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Department of Statistical Sciences, University of Toronto<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>CSAIL, Massachusetts Institute of Technology<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>Available on <a href="http://featureselection.asu.edu/datasets.php">http://featureselection.asu.edu/datasets.php</a>.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
