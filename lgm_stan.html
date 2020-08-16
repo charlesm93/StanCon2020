@@ -458,10 +458,12 @@ We numerically determine the mode using a Newton solver;
 the curvature itself is the negative Hessian of the log density.
 We then have
 <span class="math display">\[
-  \pi_\mathcal{G}(\phi \mid y) := \pi(\phi) \frac{\pi(\theta^* \mid \phi)
-    \pi(y \mid \theta^*, \phi)}{\pi_\mathcal{G}(\theta^* \mid \phi, y)}
+   \pi_\mathcal{G}(\phi \mid y) := \pi(\phi) \frac{\pi(\theta^* \mid \phi)
+    \pi(y \mid \theta^*, \phi)}{\pi_\mathcal{G}(\theta^* \mid \phi, y) \pi(y)}
     \approx \pi(\phi \mid y).
 \]</span>
+Note that, as usual with MCMC,
+we do not have to compute the normalizing term, <span class="math inline">\(1 / \pi(y)\)</span>.
 Equipped with this approximation, we can repeat the previously described sampling scheme.</p>
 <p>But we now need to worry about the error this approximation introduces.
 When the likelihood is log-concave, <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>
@@ -630,14 +632,14 @@ transformed parameters {
 <span id="cb11-12"><a href="#cb11-12"></a>  <span class="dt">iter_warmup =</span> <span class="dv">1000</span>, <span class="dt">iter_sampling =</span> <span class="dv">1000</span>, <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
-## Chain 2 finished in 44.9 seconds.
-## Chain 3 finished in 46.3 seconds.
-## Chain 1 finished in 47.3 seconds.
-## Chain 4 finished in 47.9 seconds.
+## Chain 2 finished in 17.3 seconds.
+## Chain 3 finished in 17.8 seconds.
+## Chain 1 finished in 18.4 seconds.
+## Chain 4 finished in 18.7 seconds.
 ## 
 ## All 4 chains finished successfully.
-## Mean chain execution time: 46.6 seconds.
-## Total execution time: 48.0 seconds.</code></pre>
+## Mean chain execution time: 18.0 seconds.
+## Total execution time: 18.7 seconds.</code></pre>
 <p>There are no warning messages.
 Let’s examine a summary of our fit for certain parameters of interest.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>fit<span class="op">$</span><span class="kw">summary</span>(<span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;rho&quot;</span>, <span class="st">&quot;theta[1]&quot;</span>, <span class="st">&quot;theta[2]&quot;</span>))</span></code></pre></div>
@@ -669,7 +671,7 @@ parameter, <span class="math inline">\(\theta\)</span>, for each county.</p>
 <span id="cb15-9"><a href="#cb15-9"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
 <span id="cb15-10"><a href="#cb15-10"></a><span class="st">  </span><span class="kw">scale_color_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">mid =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;red&quot;</span>)</span>
 <span id="cb15-11"><a href="#cb15-11"></a>plot</span></code></pre></div>
-<p><img src="submission_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="lgm_stan_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <p>This plot highlights regions which, per our analysis,
 are more at risk.
 There are several limitations worth pointing out.
@@ -885,7 +887,7 @@ from the script <code>tools.r</code>.</p>
 <span id="cb26-6"><a href="#cb26-6"></a>log_lambda_laplace &lt;-<span class="st"> </span><span class="kw">log</span>(lambda)</span>
 <span id="cb26-7"><a href="#cb26-7"></a><span class="kw">quant_select_plot</span>(log_lambda_laplace, quant, <span class="dt">threshold =</span> <span class="fl">2.4</span>) <span class="op">+</span></span>
 <span id="cb26-8"><a href="#cb26-8"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
-<p><img src="submission_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="lgm_stan_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>From this plot, it is clear that the <span class="math inline">\(86^\mathrm{th}\)</span> covariate
 is strongly selected.
 A handful of other covariates also stand out.</p>
@@ -917,7 +919,7 @@ to see which variables get softly selected.</p>
 <span id="cb30-3"><a href="#cb30-3"></a><span class="kw">quant_select_plot2</span>(log_lambda_full, log_lambda_laplace, quant, <span class="dt">threshold =</span> <span class="fl">2.4</span>,</span>
 <span id="cb30-4"><a href="#cb30-4"></a>                   <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
 <span id="cb30-5"><a href="#cb30-5"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
-<p><img src="submission_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="lgm_stan_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="co"># select the top 6 covariates from the model fitted with full HMC</span></span>
 <span id="cb31-2"><a href="#cb31-2"></a><span class="kw">select_lambda</span>(log_lambda_full, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
 <pre><code>## [1]  86  81 179 160 120 151</code></pre>
@@ -943,7 +945,7 @@ fully agree about their order.</p>
 <span id="cb35-11"><a href="#cb35-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Probability (HMC + Laplace)&quot;</span>) <span class="op">+</span></span>
 <span id="cb35-12"><a href="#cb35-12"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">15</span>))</span>
 <span id="cb35-13"><a href="#cb35-13"></a>plot</span></code></pre></div>
-<p><img src="submission_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="lgm_stan_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>From the literature, we expect the probability to be more conservative
 when using the embedded Laplace approximation;
 nevertheless, the estimated probabilities are in close agreement.
