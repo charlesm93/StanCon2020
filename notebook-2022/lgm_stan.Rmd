@@ -98,6 +98,12 @@ See the instructions in the following GitHub repository:
 https://github.com/SteveBronder/laplace_testing
 ```
 
+The code used in this notebook, including all the models, can be found on
+```
+https://github.com/charlesm93/StanCon2020/
+```
+under the directory `notebook2022`.
+
 
 ### Changes since the 2020 notebook {-#c}
 
