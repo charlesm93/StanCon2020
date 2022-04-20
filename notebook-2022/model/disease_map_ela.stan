@@ -35,14 +35,14 @@ model {
   rho ~ inv_gamma(rho_location_prior, rho_scale_prior);
   alpha ~ inv_gamma(alpha_location_prior, alpha_scale_prior);
 
-  target += laplace_marginal_poisson_log_lpmf(y | n_samples, ye, theta_0, K_functor,
-                                              x, n_obs, alpha, rho);
+  target += laplace_marginal_poisson_2_log_lpmf(y | n_samples, ye, theta_0, K_functor,
+                                                x, n_obs, alpha, rho);
 }
 
 generated quantities {
   vector[n_obs] theta
-    = laplace_marginal_poisson_log_rng(y, n_samples, ye, theta_0, K_functor,
-                                       forward_as_tuple(x, n_obs), 
-                                       forward_as_tuple(x, n_obs), 
-                                       alpha, rho);
+    = laplace_marginal_poisson_2_log_rng(y, n_samples, ye, theta_0, K_functor,
+                                         forward_as_tuple(x, n_obs), 
+                                         forward_as_tuple(x, n_obs), 
+                                         alpha, rho);
 }

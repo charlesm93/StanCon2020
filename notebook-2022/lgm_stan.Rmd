@@ -511,10 +511,10 @@ The arguments unique to this function are:
 $\phi$ and any other input for the covariance function can be passed after the `K_functor` argument.
 The only restriction on the signature of `K_functor` is that it must return a matrix.
 
-The function is overloaded to admit an additional argument
+The similar `laplace_marginal_poisson_2_log_lpmf` admits an additional argument
 ```
-laplace_marginal_poisson_log_lpmf(y | n_samples, ye, theta_0, K_functor,
-                                  ...);
+laplace_marginal_poisson_2_log_lpmf(y | n_samples, ye, theta_0, K_functor,
+                                    ...);
 ```
 with
 
@@ -705,8 +705,8 @@ model {
   rho ~ inv_gamma(rho_location_prior, rho_scale_prior);
   alpha ~ inv_gamma(alpha_location_prior, alpha_scale_prior);
 
-  target += laplace_marginal_poisson_log_lpmf(y | n_samples, ye, theta_0, K_functor,
-                                              x, n_obs, alpha, rho);
+  target += laplace_marginal_poisson_2_log_lpmf(y | n_samples, ye, theta_0, K_functor,
+                                                x, n_obs, alpha, rho);
 }
 ```
 We now need to fill in some gaps. The location and scale parameters for the priors
@@ -733,10 +733,10 @@ Finally, we generate posterior samples for $\theta$ post-hoc.
 ```
 generated quantities {
   vector[n_obs] theta
-    = laplace_marginal_poisson_log_rng(y, n_samples, ye, theta_0, K_functor,
-                                       forward_as_tuple(x, n_obs), 
-                                       forward_as_tuple(x, n_obs), 
-                                       alpha, rho);
+    = laplace_marginal_poisson_2_log_rng(y, n_samples, ye, theta_0, K_functor,
+                                         forward_as_tuple(x, n_obs), 
+                                         forward_as_tuple(x, n_obs), 
+                                         alpha, rho);
 }
 ```
 

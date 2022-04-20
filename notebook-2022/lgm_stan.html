@@ -281,6 +281,9 @@ and currently not part of Stan’s release version.
 In order to use them, we install a version of <code>cmdstan</code> which contains the relevant prototypes.
 See the instructions in the following GitHub repository:</p>
 <pre><code>https://github.com/SteveBronder/laplace_testing</code></pre>
+<p>The code used in this notebook, including all the models, can be found on</p>
+<pre><code>https://github.com/charlesm93/StanCon2020/</code></pre>
+<p>under the directory <code>notebook2022</code>.</p>
 </div>
 <div id="c" class="section level3 unnumbered" number="">
 <h3>Changes since the 2020 notebook</h3>
@@ -293,22 +296,22 @@ See the instructions in the following GitHub repository:</p>
 </div>
 <div id="h" class="section level3 unnumbered" number="">
 <h3>R setup</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Adjust to your setting!</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">set.seed</span>(<span class="dv">1954</span>)</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">.libPaths</span>(<span class="st">&quot;~/Rlib&quot;</span>) </span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">library</span>(cmdstanr)</span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="kw">library</span>(latex2exp)</span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="kw">library</span>(rjson)</span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">library</span>(RJSONIO)</span>
-<span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Set the path to the cmdstan directory with the prototype functions</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">set_cmdstan_path</span>(<span class="st">&quot;~/Code/laplace_approximation/spring2022/laplace_testing/cmdstan/&quot;</span>)</span>
-<span id="cb2-12"><a href="#cb2-12"></a></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="co"># tuning parameters for MCMC</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>num_chains &lt;-<span class="st"> </span><span class="dv">4</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a>num_warm &lt;-<span class="st"> </span><span class="dv">500</span></span>
-<span id="cb2-16"><a href="#cb2-16"></a>num_post &lt;-<span class="st"> </span><span class="dv">500</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Adjust to your setting!</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">set.seed</span>(<span class="dv">1954</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">.libPaths</span>(<span class="st">&quot;~/Rlib&quot;</span>) </span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">library</span>(cmdstanr)</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="kw">library</span>(latex2exp)</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="kw">library</span>(rjson)</span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="kw">library</span>(RJSONIO)</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co"># Set the path to the cmdstan directory with the prototype functions</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="kw">set_cmdstan_path</span>(<span class="st">&quot;~/Code/laplace_approximation/spring2022/laplace_testing/cmdstan/&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co"># tuning parameters for MCMC</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>num_chains &lt;-<span class="st"> </span><span class="dv">4</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a>num_warm &lt;-<span class="st"> </span><span class="dv">500</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>num_post &lt;-<span class="st"> </span><span class="dv">500</span></span></code></pre></div>
 </div>
 </div>
 <div id="lgm" class="section level2 unnumbered" number="">
@@ -464,23 +467,23 @@ generated quantities {
   }  // p(theta | y, mu, tau)
 }</code></pre>
 <p>The full model is written in <code>schools_marginal.stan</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>n_schools &lt;-<span class="st"> </span><span class="dv">8</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>y &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">8</span>, <span class="dv">-3</span>, <span class="dv">7</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">18</span>, <span class="dv">12</span>)</span>
-<span id="cb4-3"><a href="#cb4-3"></a>sigma &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">15</span>, <span class="dv">10</span>, <span class="dv">16</span>, <span class="dv">11</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">10</span>, <span class="dv">18</span>)</span>
-<span id="cb4-4"><a href="#cb4-4"></a></span>
-<span id="cb4-5"><a href="#cb4-5"></a>stan_data &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">n_schools =</span> n_schools,</span>
-<span id="cb4-6"><a href="#cb4-6"></a>                  <span class="dt">y =</span> y,</span>
-<span id="cb4-7"><a href="#cb4-7"></a>                  <span class="dt">sigma =</span> sigma)</span>
-<span id="cb4-8"><a href="#cb4-8"></a></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="co"># fit model with HMC + marginalization</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a>mod_marginal &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/schools_marginal.stan&quot;</span>)</span>
-<span id="cb4-11"><a href="#cb4-11"></a></span>
-<span id="cb4-12"><a href="#cb4-12"></a>fit_marginal &lt;-<span class="st"> </span>mod_marginal<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> stan_data,</span>
-<span id="cb4-13"><a href="#cb4-13"></a>                                    <span class="dt">chains =</span> num_chains, </span>
-<span id="cb4-14"><a href="#cb4-14"></a>                                    <span class="dt">parallel_chains =</span> num_chains,</span>
-<span id="cb4-15"><a href="#cb4-15"></a>                                    <span class="dt">iter_warmup =</span> num_warm, </span>
-<span id="cb4-16"><a href="#cb4-16"></a>                                    <span class="dt">iter_sampling =</span> num_post,</span>
-<span id="cb4-17"><a href="#cb4-17"></a>                                    <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>n_schools &lt;-<span class="st"> </span><span class="dv">8</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>y &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">28</span>, <span class="dv">8</span>, <span class="dv">-3</span>, <span class="dv">7</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">18</span>, <span class="dv">12</span>)</span>
+<span id="cb5-3"><a href="#cb5-3"></a>sigma &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">15</span>, <span class="dv">10</span>, <span class="dv">16</span>, <span class="dv">11</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">10</span>, <span class="dv">18</span>)</span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a>stan_data &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">n_schools =</span> n_schools,</span>
+<span id="cb5-6"><a href="#cb5-6"></a>                  <span class="dt">y =</span> y,</span>
+<span id="cb5-7"><a href="#cb5-7"></a>                  <span class="dt">sigma =</span> sigma)</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co"># fit model with HMC + marginalization</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>mod_marginal &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/schools_marginal.stan&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11"></a></span>
+<span id="cb5-12"><a href="#cb5-12"></a>fit_marginal &lt;-<span class="st"> </span>mod_marginal<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> stan_data,</span>
+<span id="cb5-13"><a href="#cb5-13"></a>                                    <span class="dt">chains =</span> num_chains, </span>
+<span id="cb5-14"><a href="#cb5-14"></a>                                    <span class="dt">parallel_chains =</span> num_chains,</span>
+<span id="cb5-15"><a href="#cb5-15"></a>                                    <span class="dt">iter_warmup =</span> num_warm, </span>
+<span id="cb5-16"><a href="#cb5-16"></a>                                    <span class="dt">iter_sampling =</span> num_post,</span>
+<span id="cb5-17"><a href="#cb5-17"></a>                                    <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
 ## Chain 1 finished in 0.0 seconds.
@@ -515,14 +518,14 @@ To obtain accurate inference, we need to use a non-centered parameterization, th
 The sampler is run over the joint space <span class="math inline">\((\tau, \mu, \zeta)\)</span> and the <span class="math inline">\(\theta\)</span>’s are recovered post-hoc.
 While the non-centered parameterization solves many problems encountered when fitting hierarchical models, it can be difficult to know without trial-and-error which parameterization to use.
 The problem is further complicated when we consider the possibility that different <span class="math inline">\(\theta\)</span>’s may require different parameterization.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod_non_centered &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/schools_non_centered.stan&quot;</span>)</span>
-<span id="cb6-2"><a href="#cb6-2"></a></span>
-<span id="cb6-3"><a href="#cb6-3"></a>fit_non_centered &lt;-<span class="st"> </span>mod_non_centered<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> stan_data,</span>
-<span id="cb6-4"><a href="#cb6-4"></a>                                            <span class="dt">chains =</span> num_chains, </span>
-<span id="cb6-5"><a href="#cb6-5"></a>                                            <span class="dt">parallel_chains =</span> num_chains,</span>
-<span id="cb6-6"><a href="#cb6-6"></a>                                            <span class="dt">iter_warmup =</span> num_warm,</span>
-<span id="cb6-7"><a href="#cb6-7"></a>                                            <span class="dt">iter_sampling =</span> num_post,</span>
-<span id="cb6-8"><a href="#cb6-8"></a>                                            <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>mod_non_centered &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/schools_non_centered.stan&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2"></a></span>
+<span id="cb7-3"><a href="#cb7-3"></a>fit_non_centered &lt;-<span class="st"> </span>mod_non_centered<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> stan_data,</span>
+<span id="cb7-4"><a href="#cb7-4"></a>                                            <span class="dt">chains =</span> num_chains, </span>
+<span id="cb7-5"><a href="#cb7-5"></a>                                            <span class="dt">parallel_chains =</span> num_chains,</span>
+<span id="cb7-6"><a href="#cb7-6"></a>                                            <span class="dt">iter_warmup =</span> num_warm,</span>
+<span id="cb7-7"><a href="#cb7-7"></a>                                            <span class="dt">iter_sampling =</span> num_post,</span>
+<span id="cb7-8"><a href="#cb7-8"></a>                                            <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
 ## Chain 1 finished in 0.0 seconds.
@@ -532,33 +535,33 @@ The problem is further complicated when we consider the possibility that differe
 ## 
 ## All 4 chains finished successfully.
 ## Mean chain execution time: 0.0 seconds.
-## Total execution time: 0.1 seconds.</code></pre>
+## Total execution time: 0.2 seconds.</code></pre>
 <p>As a sanity check, we compare the output of both samplint strategies.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Let&#39;s compare the outputs.</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>n &lt;-<span class="st"> </span>num_chains <span class="op">*</span><span class="st"> </span>num_post</span>
-<span id="cb8-3"><a href="#cb8-3"></a>draws_full &lt;-<span class="st"> </span>fit_non_centered<span class="op">$</span><span class="kw">draws</span>()</span>
-<span id="cb8-4"><a href="#cb8-4"></a>draws_marginal &lt;-<span class="st"> </span>fit_marginal<span class="op">$</span><span class="kw">draws</span>()</span>
-<span id="cb8-5"><a href="#cb8-5"></a></span>
-<span id="cb8-6"><a href="#cb8-6"></a>n_parm &lt;-<span class="st"> </span><span class="dv">4</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>mu &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">2</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">2</span>]))</span>
-<span id="cb8-8"><a href="#cb8-8"></a>tau &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">3</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">3</span>]))</span>
-<span id="cb8-9"><a href="#cb8-9"></a>theta1 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">4</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">12</span>]))</span>
-<span id="cb8-10"><a href="#cb8-10"></a>theta2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">5</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">13</span>]))</span>
-<span id="cb8-11"><a href="#cb8-11"></a></span>
-<span id="cb8-12"><a href="#cb8-12"></a>sample &lt;-<span class="st"> </span><span class="kw">c</span>(mu, tau, theta1, theta2)</span>
-<span id="cb8-13"><a href="#cb8-13"></a>method &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;HMC + Marg.&quot;</span>, <span class="st">&quot;(full) HMC&quot;</span>), <span class="dt">each =</span> n), n_parm)</span>
-<span id="cb8-14"><a href="#cb8-14"></a>parameter &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;theta1&quot;</span>, <span class="st">&quot;theta2&quot;</span>), <span class="dt">each =</span>  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span>n)</span>
-<span id="cb8-15"><a href="#cb8-15"></a></span>
-<span id="cb8-16"><a href="#cb8-16"></a>post_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(sample, method, parameter)</span>
-<span id="cb8-17"><a href="#cb8-17"></a></span>
-<span id="cb8-18"><a href="#cb8-18"></a>plot_samples &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> post_data) <span class="op">+</span></span>
-<span id="cb8-19"><a href="#cb8-19"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample, <span class="dt">fill =</span> method), </span>
-<span id="cb8-20"><a href="#cb8-20"></a>                 <span class="dt">alpha =</span> <span class="fl">0.5</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb8-21"><a href="#cb8-21"></a>                 <span class="dt">bins =</span> <span class="dv">20</span>, <span class="dt">position =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></span>
-<span id="cb8-22"><a href="#cb8-22"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>parameter, <span class="dt">nrow =</span> <span class="dv">1</span>, <span class="dt">scale =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb8-23"><a href="#cb8-23"></a><span class="st">  </span><span class="kw">theme_bw</span>()</span>
-<span id="cb8-24"><a href="#cb8-24"></a></span>
-<span id="cb8-25"><a href="#cb8-25"></a>plot_samples</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Let&#39;s compare the outputs.</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>n &lt;-<span class="st"> </span>num_chains <span class="op">*</span><span class="st"> </span>num_post</span>
+<span id="cb9-3"><a href="#cb9-3"></a>draws_full &lt;-<span class="st"> </span>fit_non_centered<span class="op">$</span><span class="kw">draws</span>()</span>
+<span id="cb9-4"><a href="#cb9-4"></a>draws_marginal &lt;-<span class="st"> </span>fit_marginal<span class="op">$</span><span class="kw">draws</span>()</span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a>n_parm &lt;-<span class="st"> </span><span class="dv">4</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>mu &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">2</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">2</span>]))</span>
+<span id="cb9-8"><a href="#cb9-8"></a>tau &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">3</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">3</span>]))</span>
+<span id="cb9-9"><a href="#cb9-9"></a>theta1 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">4</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">12</span>]))</span>
+<span id="cb9-10"><a href="#cb9-10"></a>theta2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_marginal[, , <span class="dv">5</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">13</span>]))</span>
+<span id="cb9-11"><a href="#cb9-11"></a></span>
+<span id="cb9-12"><a href="#cb9-12"></a>sample &lt;-<span class="st"> </span><span class="kw">c</span>(mu, tau, theta1, theta2)</span>
+<span id="cb9-13"><a href="#cb9-13"></a>method &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;HMC + Marg.&quot;</span>, <span class="st">&quot;(full) HMC&quot;</span>), <span class="dt">each =</span> n), n_parm)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>parameter &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;theta1&quot;</span>, <span class="st">&quot;theta2&quot;</span>), <span class="dt">each =</span>  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span>n)</span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a>post_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(sample, method, parameter)</span>
+<span id="cb9-17"><a href="#cb9-17"></a></span>
+<span id="cb9-18"><a href="#cb9-18"></a>plot_samples &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> post_data) <span class="op">+</span></span>
+<span id="cb9-19"><a href="#cb9-19"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample, <span class="dt">fill =</span> method), </span>
+<span id="cb9-20"><a href="#cb9-20"></a>                 <span class="dt">alpha =</span> <span class="fl">0.5</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb9-21"><a href="#cb9-21"></a>                 <span class="dt">bins =</span> <span class="dv">20</span>, <span class="dt">position =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></span>
+<span id="cb9-22"><a href="#cb9-22"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>parameter, <span class="dt">nrow =</span> <span class="dv">1</span>, <span class="dt">scale =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb9-23"><a href="#cb9-23"></a><span class="st">  </span><span class="kw">theme_bw</span>()</span>
+<span id="cb9-24"><a href="#cb9-24"></a></span>
+<span id="cb9-25"><a href="#cb9-25"></a>plot_samples</span></code></pre></div>
 <p><img src="lgm_stan_files/figure-html/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /></p>
 <!-- Let us now return to the Gaussian process we previously introduced. -->
 <!-- Suppose that the observational distribution is normal, -->
@@ -666,9 +669,9 @@ The arguments unique to this function are:</p>
 </ul>
 <p><span class="math inline">\(\phi\)</span> and any other input for the covariance function can be passed after the <code>K_functor</code> argument.
 The only restriction on the signature of <code>K_functor</code> is that it must return a matrix.</p>
-<p>The function is overloaded to admit an additional argument</p>
-<pre><code>laplace_marginal_poisson_log_lpmf(y | n_samples, ye, theta_0, K_functor,
-                                  ...);</code></pre>
+<p>The similar <code>laplace_marginal_poisson_2_log_lpmf</code> admits an additional argument</p>
+<pre><code>laplace_marginal_poisson_2_log_lpmf(y | n_samples, ye, theta_0, K_functor,
+                                    ...);</code></pre>
 <p>with</p>
 <ul>
 <li><code>vector ye</code>: (data) the offset for the mean.</li>
@@ -828,8 +831,8 @@ with the approximate marginal density, <span class="math inline">\(\log \pi_\mat
   rho ~ inv_gamma(rho_location_prior, rho_scale_prior);
   alpha ~ inv_gamma(alpha_location_prior, alpha_scale_prior);
 
-  target += laplace_marginal_poisson_log_lpmf(y | n_samples, ye, theta_0, K_functor,
-                                              x, n_obs, alpha, rho);
+  target += laplace_marginal_poisson_2_log_lpmf(y | n_samples, ye, theta_0, K_functor,
+                                                x, n_obs, alpha, rho);
 }</code></pre>
 <p>We now need to fill in some gaps. The location and scale parameters for the priors
 on <span class="math inline">\(\rho\)</span> and <span class="math inline">\(\alpha\)</span> can be passed as data.
@@ -849,37 +852,37 @@ on <span class="math inline">\(\rho\)</span> and <span class="math inline">\(\al
 <p>Finally, we generate posterior samples for <span class="math inline">\(\theta\)</span> post-hoc.</p>
 <pre><code>generated quantities {
   vector[n_obs] theta
-    = laplace_marginal_poisson_log_rng(y, n_samples, ye, theta_0, K_functor,
-                                       forward_as_tuple(x, n_obs), 
-                                       forward_as_tuple(x, n_obs), 
-                                       alpha, rho);
+    = laplace_marginal_poisson_2_log_rng(y, n_samples, ye, theta_0, K_functor,
+                                         forward_as_tuple(x, n_obs), 
+                                         forward_as_tuple(x, n_obs), 
+                                         alpha, rho);
 }</code></pre>
 <p>The full Stan model can be found in <code>model/disease_map_ela.stan</code>.</p>
 </div>
 <div id="r" class="section level3 unnumbered" number="">
 <h3>Fitting the model in R</h3>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># Read in data for 100 randomly sampled counties</span></span>
-<span id="cb23-2"><a href="#cb23-2"></a>data &lt;-<span class="st"> </span>rjson<span class="op">::</span><span class="kw">fromJSON</span>(<span class="dt">file =</span> <span class="st">&quot;data/disease_100.json&quot;</span>)</span>
-<span id="cb23-3"><a href="#cb23-3"></a></span>
-<span id="cb23-4"><a href="#cb23-4"></a><span class="co"># Compile and fit the model with CmdStanR</span></span>
-<span id="cb23-5"><a href="#cb23-5"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/disease_map_ela.stan&quot;</span>)</span>
-<span id="cb23-6"><a href="#cb23-6"></a></span>
-<span id="cb23-7"><a href="#cb23-7"></a>num_chains &lt;-<span class="st"> </span><span class="dv">4</span></span>
-<span id="cb23-8"><a href="#cb23-8"></a>fit &lt;-<span class="st"> </span>mod<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> data, <span class="dt">chains =</span> num_chains, <span class="dt">parallel_chains =</span> num_chains,</span>
-<span id="cb23-9"><a href="#cb23-9"></a><span class="dt">iter_warmup =</span> <span class="dv">500</span>, <span class="dt">iter_sampling =</span> <span class="dv">500</span>, <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="co"># Read in data for 100 randomly sampled counties</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a>data &lt;-<span class="st"> </span>rjson<span class="op">::</span><span class="kw">fromJSON</span>(<span class="dt">file =</span> <span class="st">&quot;data/disease_100.json&quot;</span>)</span>
+<span id="cb24-3"><a href="#cb24-3"></a></span>
+<span id="cb24-4"><a href="#cb24-4"></a><span class="co"># Compile and fit the model with CmdStanR</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/disease_map_ela.stan&quot;</span>)</span>
+<span id="cb24-6"><a href="#cb24-6"></a></span>
+<span id="cb24-7"><a href="#cb24-7"></a>num_chains &lt;-<span class="st"> </span><span class="dv">4</span></span>
+<span id="cb24-8"><a href="#cb24-8"></a>fit &lt;-<span class="st"> </span>mod<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> data, <span class="dt">chains =</span> num_chains, <span class="dt">parallel_chains =</span> num_chains,</span>
+<span id="cb24-9"><a href="#cb24-9"></a><span class="dt">iter_warmup =</span> <span class="dv">500</span>, <span class="dt">iter_sampling =</span> <span class="dv">500</span>, <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
-## Chain 3 finished in 7.1 seconds.
-## Chain 1 finished in 7.4 seconds.
-## Chain 2 finished in 7.5 seconds.
-## Chain 4 finished in 7.6 seconds.
+## Chain 3 finished in 7.4 seconds.
+## Chain 1 finished in 7.6 seconds.
+## Chain 2 finished in 7.8 seconds.
+## Chain 4 finished in 7.9 seconds.
 ## 
 ## All 4 chains finished successfully.
-## Mean chain execution time: 7.4 seconds.
-## Total execution time: 7.7 seconds.</code></pre>
+## Mean chain execution time: 7.7 seconds.
+## Total execution time: 8.0 seconds.</code></pre>
 <p>There are no warning messages.
 Let’s examine a summary of our fit for certain parameters of interest.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>fit<span class="op">$</span><span class="kw">summary</span>(<span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;rho&quot;</span>, <span class="st">&quot;theta[1]&quot;</span>, <span class="st">&quot;theta[2]&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>fit<span class="op">$</span><span class="kw">summary</span>(<span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;rho&quot;</span>, <span class="st">&quot;theta[1]&quot;</span>, <span class="st">&quot;theta[2]&quot;</span>))</span></code></pre></div>
 <pre><code>## # A tibble: 5 × 10
 ##   variable      mean    median     sd    mad        q5       q95  rhat ess_bulk
 ##   &lt;chr&gt;        &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
@@ -900,19 +903,19 @@ For the full HMC benchmark, we use a non-centered parameterization and set <code
 we refer the reader to <span class="citation">Vanhatalo, Pietiläinen, and Vehtari (2010)</span>.
 In this notebook, we simply plot the mean Poisson log
 parameter, <span class="math inline">\(\theta\)</span>, for each county.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>theta_mean &lt;-<span class="st"> </span>fit<span class="op">$</span><span class="kw">summary</span>()[<span class="dv">6</span><span class="op">:</span><span class="dv">105</span>, <span class="dv">2</span>]<span class="op">$</span>mean</span>
-<span id="cb27-2"><a href="#cb27-2"></a></span>
-<span id="cb27-3"><a href="#cb27-3"></a>x_mat &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(data<span class="op">$</span>x), <span class="dt">nrow =</span> <span class="dv">2</span>))</span>
-<span id="cb27-4"><a href="#cb27-4"></a></span>
-<span id="cb27-5"><a href="#cb27-5"></a>plot_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> x_mat[, <span class="dv">1</span>],</span>
-<span id="cb27-6"><a href="#cb27-6"></a>                        <span class="dt">x2 =</span> x_mat[, <span class="dv">2</span>],</span>
-<span id="cb27-7"><a href="#cb27-7"></a>                        <span class="dt">theta_mean =</span> theta_mean)</span>
-<span id="cb27-8"><a href="#cb27-8"></a></span>
-<span id="cb27-9"><a href="#cb27-9"></a>plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> plot_data,</span>
-<span id="cb27-10"><a href="#cb27-10"></a>               <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">color =</span> theta_mean)) <span class="op">+</span></span>
-<span id="cb27-11"><a href="#cb27-11"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
-<span id="cb27-12"><a href="#cb27-12"></a><span class="st">  </span><span class="kw">scale_color_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">mid =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;red&quot;</span>)</span>
-<span id="cb27-13"><a href="#cb27-13"></a>plot</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>theta_mean &lt;-<span class="st"> </span>fit<span class="op">$</span><span class="kw">summary</span>()[<span class="dv">6</span><span class="op">:</span><span class="dv">105</span>, <span class="dv">2</span>]<span class="op">$</span>mean</span>
+<span id="cb28-2"><a href="#cb28-2"></a></span>
+<span id="cb28-3"><a href="#cb28-3"></a>x_mat &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(data<span class="op">$</span>x), <span class="dt">nrow =</span> <span class="dv">2</span>))</span>
+<span id="cb28-4"><a href="#cb28-4"></a></span>
+<span id="cb28-5"><a href="#cb28-5"></a>plot_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> x_mat[, <span class="dv">1</span>],</span>
+<span id="cb28-6"><a href="#cb28-6"></a>                        <span class="dt">x2 =</span> x_mat[, <span class="dv">2</span>],</span>
+<span id="cb28-7"><a href="#cb28-7"></a>                        <span class="dt">theta_mean =</span> theta_mean)</span>
+<span id="cb28-8"><a href="#cb28-8"></a></span>
+<span id="cb28-9"><a href="#cb28-9"></a>plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> plot_data,</span>
+<span id="cb28-10"><a href="#cb28-10"></a>               <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">color =</span> theta_mean)) <span class="op">+</span></span>
+<span id="cb28-11"><a href="#cb28-11"></a><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb28-12"><a href="#cb28-12"></a><span class="st">  </span><span class="kw">scale_color_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">mid =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb28-13"><a href="#cb28-13"></a>plot</span></code></pre></div>
 <p><img src="lgm_stan_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>This plot highlights regions which, per our analysis, are more at risk.
 There are several limitations worth pointing out.
@@ -1141,33 +1144,33 @@ in the <code>generated quantities block</code>:</p>
 <div id="inf" class="section level3 unnumbered" number="">
 <h3>Fitting the model in R</h3>
 <p>For computational convenience, we restrict our attention to only 200 covariates.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: json returns an error message when reading this file.</span></span>
-<span id="cb36-2"><a href="#cb36-2"></a><span class="co"># Switching to the RJSONIO library.</span></span>
-<span id="cb36-3"><a href="#cb36-3"></a>data &lt;-<span class="st"> </span>RJSONIO<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;data/prostate_200.json&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: json returns an error message when reading this file.</span></span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="co"># Switching to the RJSONIO library.</span></span>
+<span id="cb37-3"><a href="#cb37-3"></a>data &lt;-<span class="st"> </span>RJSONIO<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;data/prostate_200.json&quot;</span>)</span></code></pre></div>
 <p>To identify covariates which are softly selected,
 we examine the <span class="math inline">\(90^\mathrm{th}\)</span> quantile of <span class="math inline">\(\log \lambda\)</span>.
 Estimates of extreme quantiles tend to have a large variance,
 hence it is helpful to run a large number of samples.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="co"># since we&#39;re estimating extreme quantiles, increase number of samples.</span></span>
-<span id="cb37-2"><a href="#cb37-2"></a>num_post =<span class="st"> </span><span class="dv">2000</span></span>
-<span id="cb37-3"><a href="#cb37-3"></a></span>
-<span id="cb37-4"><a href="#cb37-4"></a><span class="co"># mod &lt;- cmdstan_model(&quot;model/skim_logit_ela.stan&quot;)</span></span>
-<span id="cb37-5"><a href="#cb37-5"></a></span>
-<span id="cb37-6"><a href="#cb37-6"></a><span class="co"># fit_laplace &lt;- mod$sample(</span></span>
-<span id="cb37-7"><a href="#cb37-7"></a><span class="co">#   data = data, chains = num_chains,</span></span>
-<span id="cb37-8"><a href="#cb37-8"></a><span class="co">#   parallel_chains = num_chains,</span></span>
-<span id="cb37-9"><a href="#cb37-9"></a><span class="co">#   iter_warmup = num_warm,</span></span>
-<span id="cb37-10"><a href="#cb37-10"></a><span class="co">#   iter_sampling = num_post, seed = 123)</span></span>
-<span id="cb37-11"><a href="#cb37-11"></a><span class="co"># </span></span>
-<span id="cb37-12"><a href="#cb37-12"></a><span class="co"># fit_laplace$save_object(&quot;saved_fits/skim_logit_ela.fit.RDS&quot;)</span></span>
-<span id="cb37-13"><a href="#cb37-13"></a></span>
-<span id="cb37-14"><a href="#cb37-14"></a></span>
-<span id="cb37-15"><a href="#cb37-15"></a><span class="co"># For convenience, read in saved fit rather than run model</span></span>
-<span id="cb37-16"><a href="#cb37-16"></a>fit_laplace &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;saved_fits/skim_logit_ela.fit.RDS&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="co"># since we&#39;re estimating extreme quantiles, increase number of samples.</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>num_post =<span class="st"> </span><span class="dv">2000</span></span>
+<span id="cb38-3"><a href="#cb38-3"></a></span>
+<span id="cb38-4"><a href="#cb38-4"></a><span class="co"># mod &lt;- cmdstan_model(&quot;model/skim_logit_ela.stan&quot;)</span></span>
+<span id="cb38-5"><a href="#cb38-5"></a></span>
+<span id="cb38-6"><a href="#cb38-6"></a><span class="co"># fit_laplace &lt;- mod$sample(</span></span>
+<span id="cb38-7"><a href="#cb38-7"></a><span class="co">#   data = data, chains = num_chains,</span></span>
+<span id="cb38-8"><a href="#cb38-8"></a><span class="co">#   parallel_chains = num_chains,</span></span>
+<span id="cb38-9"><a href="#cb38-9"></a><span class="co">#   iter_warmup = num_warm,</span></span>
+<span id="cb38-10"><a href="#cb38-10"></a><span class="co">#   iter_sampling = num_post, seed = 123)</span></span>
+<span id="cb38-11"><a href="#cb38-11"></a><span class="co"># </span></span>
+<span id="cb38-12"><a href="#cb38-12"></a><span class="co"># fit_laplace$save_object(&quot;saved_fits/skim_logit_ela.fit.RDS&quot;)</span></span>
+<span id="cb38-13"><a href="#cb38-13"></a></span>
+<span id="cb38-14"><a href="#cb38-14"></a></span>
+<span id="cb38-15"><a href="#cb38-15"></a><span class="co"># For convenience, read in saved fit rather than run model</span></span>
+<span id="cb38-16"><a href="#cb38-16"></a>fit_laplace &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;saved_fits/skim_logit_ela.fit.RDS&quot;</span>)</span></code></pre></div>
 <p>As before, we examine a summary of the posterior draws for certain
 parameters of interest.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>pars =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;eta_two&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;lambda[1]&quot;</span>, <span class="st">&quot;lambda[2]&quot;</span>)</span>
-<span id="cb38-2"><a href="#cb38-2"></a>fit_laplace<span class="op">$</span><span class="kw">summary</span>(<span class="dt">variables =</span> pars)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>pars =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;eta_two&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;lambda[1]&quot;</span>, <span class="st">&quot;lambda[2]&quot;</span>)</span>
+<span id="cb39-2"><a href="#cb39-2"></a>fit_laplace<span class="op">$</span><span class="kw">summary</span>(<span class="dt">variables =</span> pars)</span></code></pre></div>
 <pre><code>## # A tibble: 5 × 10
 ##   variable        mean   median      sd     mad       q5      q95  rhat ess_bulk
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
@@ -1179,23 +1182,23 @@ parameters of interest.</p>
 ## # … with 1 more variable: ess_tail &lt;dbl&gt;</code></pre>
 <p>To identify softly selected variables, we load two custom R functions
 from the script <code>tools.r</code>.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="kw">source</span>(<span class="st">&quot;tools.r&quot;</span>)</span>
-<span id="cb40-2"><a href="#cb40-2"></a></span>
-<span id="cb40-3"><a href="#cb40-3"></a><span class="co"># plot the 90th quantiles of all covariates.</span></span>
-<span id="cb40-4"><a href="#cb40-4"></a>quant =<span class="st"> </span><span class="fl">0.9</span></span>
-<span id="cb40-5"><a href="#cb40-5"></a>lambda &lt;-<span class="st"> </span>fit_laplace<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;lambda&quot;</span>)</span>
-<span id="cb40-6"><a href="#cb40-6"></a>lambda &lt;-<span class="st"> </span><span class="kw">matrix</span>(lambda, <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post,</span>
-<span id="cb40-7"><a href="#cb40-7"></a>                         <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
-<span id="cb40-8"><a href="#cb40-8"></a>log_lambda_laplace &lt;-<span class="st"> </span><span class="kw">log</span>(lambda)</span>
-<span id="cb40-9"><a href="#cb40-9"></a></span>
-<span id="cb40-10"><a href="#cb40-10"></a><span class="kw">quant_select_plot</span>(log_lambda_laplace, quant, <span class="dt">threshold =</span> <span class="fl">2.4</span>) <span class="op">+</span></span>
-<span id="cb40-11"><a href="#cb40-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">source</span>(<span class="st">&quot;tools.r&quot;</span>)</span>
+<span id="cb41-2"><a href="#cb41-2"></a></span>
+<span id="cb41-3"><a href="#cb41-3"></a><span class="co"># plot the 90th quantiles of all covariates.</span></span>
+<span id="cb41-4"><a href="#cb41-4"></a>quant =<span class="st"> </span><span class="fl">0.9</span></span>
+<span id="cb41-5"><a href="#cb41-5"></a>lambda &lt;-<span class="st"> </span>fit_laplace<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;lambda&quot;</span>)</span>
+<span id="cb41-6"><a href="#cb41-6"></a>lambda &lt;-<span class="st"> </span><span class="kw">matrix</span>(lambda, <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post,</span>
+<span id="cb41-7"><a href="#cb41-7"></a>                         <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
+<span id="cb41-8"><a href="#cb41-8"></a>log_lambda_laplace &lt;-<span class="st"> </span><span class="kw">log</span>(lambda)</span>
+<span id="cb41-9"><a href="#cb41-9"></a></span>
+<span id="cb41-10"><a href="#cb41-10"></a><span class="kw">quant_select_plot</span>(log_lambda_laplace, quant, <span class="dt">threshold =</span> <span class="fl">2.4</span>) <span class="op">+</span></span>
+<span id="cb41-11"><a href="#cb41-11"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
 <p><img src="lgm_stan_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>From this plot, it is clear that the <span class="math inline">\(86^\mathrm{th}\)</span> covariate
 is strongly selected.
 A handful of other covariates also stand out.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="co"># select the top 6 covariates</span></span>
-<span id="cb41-2"><a href="#cb41-2"></a><span class="kw">select_lambda</span>(log_lambda_laplace, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="co"># select the top 6 covariates</span></span>
+<span id="cb42-2"><a href="#cb42-2"></a><span class="kw">select_lambda</span>(log_lambda_laplace, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
 <pre><code>## [1]  86 160 179  81 120 151</code></pre>
 </div>
 <div id="comp" class="section level3 unnumbered" number="">
@@ -1212,60 +1215,60 @@ However, when using a Bernoulli observational model,
 the approximation introduces a bias, which may be more or less
 important depending on the quantity of interest.</p>
 <p>To see the difference, we fit the model using full HMC.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="co"># mod &lt;- cmdstan_model(&quot;model/skim_logit.stan&quot;)</span></span>
-<span id="cb43-2"><a href="#cb43-2"></a><span class="co"># fit_full &lt;- mod$sample(</span></span>
-<span id="cb43-3"><a href="#cb43-3"></a><span class="co">#   data = data, chains = num_chains,</span></span>
-<span id="cb43-4"><a href="#cb43-4"></a><span class="co">#   parallel_chains = num_chains,</span></span>
-<span id="cb43-5"><a href="#cb43-5"></a><span class="co">#   iter_warmup = num_warm,</span></span>
-<span id="cb43-6"><a href="#cb43-6"></a><span class="co">#   iter_sampling = num_post, seed = 123,</span></span>
-<span id="cb43-7"><a href="#cb43-7"></a><span class="co">#   adapt_delta = 0.99)</span></span>
-<span id="cb43-8"><a href="#cb43-8"></a><span class="co"># </span></span>
-<span id="cb43-9"><a href="#cb43-9"></a><span class="co"># fit_full$save_object(&quot;saved_fits/skim_logit.fit.RDS&quot;)</span></span>
-<span id="cb43-10"><a href="#cb43-10"></a><span class="co"># </span><span class="al">WARNING</span><span class="co">: Even with adapt_delta = 0.95, we get 12 of 8000 divergent transitions.</span></span>
-<span id="cb43-11"><a href="#cb43-11"></a></span>
-<span id="cb43-12"><a href="#cb43-12"></a><span class="co"># load saved cmdstanr fit</span></span>
-<span id="cb43-13"><a href="#cb43-13"></a>fit_full &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;saved_fits/skim_logit.fit.RDS&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="co"># mod &lt;- cmdstan_model(&quot;model/skim_logit.stan&quot;)</span></span>
+<span id="cb44-2"><a href="#cb44-2"></a><span class="co"># fit_full &lt;- mod$sample(</span></span>
+<span id="cb44-3"><a href="#cb44-3"></a><span class="co">#   data = data, chains = num_chains,</span></span>
+<span id="cb44-4"><a href="#cb44-4"></a><span class="co">#   parallel_chains = num_chains,</span></span>
+<span id="cb44-5"><a href="#cb44-5"></a><span class="co">#   iter_warmup = num_warm,</span></span>
+<span id="cb44-6"><a href="#cb44-6"></a><span class="co">#   iter_sampling = num_post, seed = 123,</span></span>
+<span id="cb44-7"><a href="#cb44-7"></a><span class="co">#   adapt_delta = 0.99)</span></span>
+<span id="cb44-8"><a href="#cb44-8"></a><span class="co"># </span></span>
+<span id="cb44-9"><a href="#cb44-9"></a><span class="co"># fit_full$save_object(&quot;saved_fits/skim_logit.fit.RDS&quot;)</span></span>
+<span id="cb44-10"><a href="#cb44-10"></a><span class="co"># </span><span class="al">WARNING</span><span class="co">: Even with adapt_delta = 0.95, we get 12 of 8000 divergent transitions.</span></span>
+<span id="cb44-11"><a href="#cb44-11"></a></span>
+<span id="cb44-12"><a href="#cb44-12"></a><span class="co"># load saved cmdstanr fit</span></span>
+<span id="cb44-13"><a href="#cb44-13"></a>fit_full &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;saved_fits/skim_logit.fit.RDS&quot;</span>)</span></code></pre></div>
 <p>As before, we inspect the <span class="math inline">\(90^\mathrm{th}\)</span> quantile of <span class="math inline">\(\log \lambda\)</span>
 to see which variables get softly selected.</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="co"># log_lambda_full &lt;- log(extract(fit_full, pars = c(&quot;lambda&quot;))$lambda)</span></span>
-<span id="cb44-2"><a href="#cb44-2"></a>lambda_full &lt;-<span class="st"> </span>fit_full<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;lambda&quot;</span>)</span>
-<span id="cb44-3"><a href="#cb44-3"></a>lambda_full &lt;-<span class="st"> </span><span class="kw">matrix</span>(lambda_full, <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post,</span>
-<span id="cb44-4"><a href="#cb44-4"></a>                      <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
-<span id="cb44-5"><a href="#cb44-5"></a>log_lambda_full &lt;-<span class="st"> </span><span class="kw">log</span>(lambda_full)</span>
-<span id="cb44-6"><a href="#cb44-6"></a></span>
-<span id="cb44-7"><a href="#cb44-7"></a><span class="kw">quant_select_plot2</span>(log_lambda_full, log_lambda_laplace, quant, </span>
-<span id="cb44-8"><a href="#cb44-8"></a>                   <span class="dt">threshold =</span> <span class="fl">2.4</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
-<span id="cb44-9"><a href="#cb44-9"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="co"># log_lambda_full &lt;- log(extract(fit_full, pars = c(&quot;lambda&quot;))$lambda)</span></span>
+<span id="cb45-2"><a href="#cb45-2"></a>lambda_full &lt;-<span class="st"> </span>fit_full<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;lambda&quot;</span>)</span>
+<span id="cb45-3"><a href="#cb45-3"></a>lambda_full &lt;-<span class="st"> </span><span class="kw">matrix</span>(lambda_full, <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post,</span>
+<span id="cb45-4"><a href="#cb45-4"></a>                      <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
+<span id="cb45-5"><a href="#cb45-5"></a>log_lambda_full &lt;-<span class="st"> </span><span class="kw">log</span>(lambda_full)</span>
+<span id="cb45-6"><a href="#cb45-6"></a></span>
+<span id="cb45-7"><a href="#cb45-7"></a><span class="kw">quant_select_plot2</span>(log_lambda_full, log_lambda_laplace, quant, </span>
+<span id="cb45-8"><a href="#cb45-8"></a>                   <span class="dt">threshold =</span> <span class="fl">2.4</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
+<span id="cb45-9"><a href="#cb45-9"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;90th quantile for </span><span class="ch">\n</span><span class="st"> log lambda&quot;</span>)</span></code></pre></div>
 <p><img src="lgm_stan_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="co"># select the top 6 covariates from the model fitted with full HMC</span></span>
-<span id="cb45-2"><a href="#cb45-2"></a><span class="kw">select_lambda</span>(log_lambda_full, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="co"># select the top 6 covariates from the model fitted with full HMC</span></span>
+<span id="cb46-2"><a href="#cb46-2"></a><span class="kw">select_lambda</span>(log_lambda_full, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
 <pre><code>## [1]  86 179 160 120  81 180</code></pre>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="co"># select the top 6 covariates from the approximate model</span></span>
-<span id="cb47-2"><a href="#cb47-2"></a><span class="kw">select_lambda</span>(log_lambda_laplace, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="co"># select the top 6 covariates from the approximate model</span></span>
+<span id="cb48-2"><a href="#cb48-2"></a><span class="kw">select_lambda</span>(log_lambda_laplace, quant, <span class="dt">n =</span> <span class="dv">6</span>)</span></code></pre></div>
 <pre><code>## [1]  86 160 179  81 120 151</code></pre>
 <p>There is disagreement between the estimated quantiles.
 This is both due to the approximation bias and the usually high noise
 in estimates of extreme quantiles.
 Still both models identify the relevant covariates.</p>
 <p>We can also compare the expected probability of developing cancer.</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>p_laplace &lt;-<span class="st"> </span><span class="kw">matrix</span>(fit_laplace<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;p&quot;</span>),</span>
-<span id="cb49-2"><a href="#cb49-2"></a>                    <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post, <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
-<span id="cb49-3"><a href="#cb49-3"></a>p_laplace &lt;-<span class="st"> </span><span class="kw">colMeans</span>(p_laplace)</span>
-<span id="cb49-4"><a href="#cb49-4"></a></span>
-<span id="cb49-5"><a href="#cb49-5"></a>p_full &lt;-<span class="st"> </span><span class="kw">matrix</span>(fit_full<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;p&quot;</span>),</span>
-<span id="cb49-6"><a href="#cb49-6"></a>                 <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post, <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
-<span id="cb49-7"><a href="#cb49-7"></a>p_full &lt;-<span class="st"> </span><span class="kw">colMeans</span>(p_full)</span>
-<span id="cb49-8"><a href="#cb49-8"></a></span>
-<span id="cb49-9"><a href="#cb49-9"></a>plot_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(p_full, p_laplace)</span>
-<span id="cb49-10"><a href="#cb49-10"></a>plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> plot_data, <span class="kw">aes</span>(<span class="dt">x =</span> p_full, <span class="dt">y =</span> p_laplace)) <span class="op">+</span></span>
-<span id="cb49-11"><a href="#cb49-11"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
-<span id="cb49-12"><a href="#cb49-12"></a><span class="st">  </span><span class="kw">geom_abline</span>(<span class="dt">intercept =</span> <span class="dv">0</span>, <span class="dt">slope =</span> <span class="dv">1</span>,</span>
-<span id="cb49-13"><a href="#cb49-13"></a>              <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>,</span>
-<span id="cb49-14"><a href="#cb49-14"></a>              <span class="dt">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="dt">size =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
-<span id="cb49-15"><a href="#cb49-15"></a><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Probability (full HMC)&quot;</span>) <span class="op">+</span></span>
-<span id="cb49-16"><a href="#cb49-16"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Probability (HMC + Laplace)&quot;</span>) <span class="op">+</span></span>
-<span id="cb49-17"><a href="#cb49-17"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">15</span>))</span>
-<span id="cb49-18"><a href="#cb49-18"></a>plot</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>p_laplace &lt;-<span class="st"> </span><span class="kw">matrix</span>(fit_laplace<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;p&quot;</span>),</span>
+<span id="cb50-2"><a href="#cb50-2"></a>                    <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post, <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
+<span id="cb50-3"><a href="#cb50-3"></a>p_laplace &lt;-<span class="st"> </span><span class="kw">colMeans</span>(p_laplace)</span>
+<span id="cb50-4"><a href="#cb50-4"></a></span>
+<span id="cb50-5"><a href="#cb50-5"></a>p_full &lt;-<span class="st"> </span><span class="kw">matrix</span>(fit_full<span class="op">$</span><span class="kw">draws</span>(<span class="dt">variables =</span> <span class="st">&quot;p&quot;</span>),</span>
+<span id="cb50-6"><a href="#cb50-6"></a>                 <span class="dt">nrow =</span> num_chains <span class="op">*</span><span class="st"> </span>num_post, <span class="dt">ncol =</span> <span class="dv">200</span>)</span>
+<span id="cb50-7"><a href="#cb50-7"></a>p_full &lt;-<span class="st"> </span><span class="kw">colMeans</span>(p_full)</span>
+<span id="cb50-8"><a href="#cb50-8"></a></span>
+<span id="cb50-9"><a href="#cb50-9"></a>plot_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(p_full, p_laplace)</span>
+<span id="cb50-10"><a href="#cb50-10"></a>plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> plot_data, <span class="kw">aes</span>(<span class="dt">x =</span> p_full, <span class="dt">y =</span> p_laplace)) <span class="op">+</span></span>
+<span id="cb50-11"><a href="#cb50-11"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb50-12"><a href="#cb50-12"></a><span class="st">  </span><span class="kw">geom_abline</span>(<span class="dt">intercept =</span> <span class="dv">0</span>, <span class="dt">slope =</span> <span class="dv">1</span>,</span>
+<span id="cb50-13"><a href="#cb50-13"></a>              <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>,</span>
+<span id="cb50-14"><a href="#cb50-14"></a>              <span class="dt">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="dt">size =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
+<span id="cb50-15"><a href="#cb50-15"></a><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Probability (full HMC)&quot;</span>) <span class="op">+</span></span>
+<span id="cb50-16"><a href="#cb50-16"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Probability (HMC + Laplace)&quot;</span>) <span class="op">+</span></span>
+<span id="cb50-17"><a href="#cb50-17"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">15</span>))</span>
+<span id="cb50-18"><a href="#cb50-18"></a>plot</span></code></pre></div>
 <p><img src="lgm_stan_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <p>From the literature, we expect the probability to be more conservative
 when using the embedded Laplace approximation;
@@ -1275,7 +1278,7 @@ In particular when examining the posterior distribution of certain
 hyperparameters, the approximation bias becomes more apparent.</p>
 <p>The integrated Laplace approximation runs faster than full HMC for <span class="math inline">\(d = 200\)</span> and doesn’t require us to increase <code>adapt_delta</code>:
 this is symptomic of the Markov chains exploring a parameter space with a better behaved geometry.</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>fit_laplace<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>fit_laplace<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
 <pre><code>## $total
 ## [1] 520.7352
 ## 
@@ -1285,7 +1288,7 @@ this is symptomic of the Markov chains exploring a parameter space with a better
 ## 2        2 159.608  360.974 520.582
 ## 3        3 161.373  214.478 375.851
 ## 4        4 158.978  212.287 371.265</code></pre>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>fit_full<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>fit_full<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
 <pre><code>## $total
 ## [1] 664.3693
 ## 
@@ -1309,7 +1312,7 @@ Note: some of the text is directly taken from <span class="citation">Margossian 
 <p>The one-compartment pharmacokinetic model with a first-order absorption from the gut describes the diffusion of an orally administered drug compound in the patient’s body, here referred to as the <em>central compartment</em>.
 Each patient receives one bolus dose.
 The drug mass in the central compartment is then measured over time.</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;figures/one_cpt_model.png&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;figures/one_cpt_model.png&quot;</span>)</span></code></pre></div>
 <p><img src="figures/one_cpt_model.png" width="50%" style="display: block; margin: auto;" />
 Our goal is to estimate the absorption rate, <span class="math inline">\(k_1\)</span>, and the clearance rate, <span class="math inline">\(k_2\)</span>.
 The population model endows each patient with their own rate parameters, subject to a hierarchical normal prior.
@@ -1361,8 +1364,8 @@ where <span class="math inline">\({\bf k}_i\)</span> is a vector with the patien
 Then the Hessian, <span class="math inline">\(\partial^2_\theta \pi(y \mid \theta, \eta)\)</span>, is block-diagonal with block size <span class="math inline">\(2 \times 2\)</span>, and the sparsity of the Hessian can be taken advantage of.</p>
 <p>The observations for each patient are stored in a single vector, <code>y_obs</code>,
 with <code>start</code> and <code>end</code> giving us the first and last index for each patient.</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>data &lt;-<span class="st"> </span>RJSONIO<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;data/one_cpt.data.json&quot;</span>)</span>
-<span id="cb55-2"><a href="#cb55-2"></a><span class="kw">str</span>(data)</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>data &lt;-<span class="st"> </span>RJSONIO<span class="op">::</span><span class="kw">fromJSON</span>(<span class="st">&quot;data/one_cpt.data.json&quot;</span>)</span>
+<span id="cb56-2"><a href="#cb56-2"></a><span class="kw">str</span>(data)</span></code></pre></div>
 <pre><code>## List of 7
 ##  $ N         : num 60
 ##  $ y_obs     : num [1:60] 58.2 105 140.3 206.6 120.5 ...
@@ -1371,15 +1374,15 @@ with <code>start</code> and <code>end</code> giving us the first and last index 
 ##  $ start     : num [1:10] 1 7 13 19 25 31 37 43 49 55
 ##  $ end       : num [1:10] 6 12 18 24 30 36 42 48 54 60
 ##  $ y0        : num 1000</code></pre>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>patientID &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, data<span class="op">$</span>N)</span>
-<span id="cb57-2"><a href="#cb57-2"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>data<span class="op">$</span>n_patients) {</span>
-<span id="cb57-3"><a href="#cb57-3"></a>  patientID[data<span class="op">$</span>start[i]<span class="op">:</span>data<span class="op">$</span>end[i]] &lt;-<span class="st"> </span>i </span>
-<span id="cb57-4"><a href="#cb57-4"></a>}</span>
-<span id="cb57-5"><a href="#cb57-5"></a></span>
-<span id="cb57-6"><a href="#cb57-6"></a>p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">data.frame</span>(<span class="dt">y_obs =</span> data<span class="op">$</span>y_obs, <span class="dt">time =</span> data<span class="op">$</span>time,</span>
-<span id="cb57-7"><a href="#cb57-7"></a>                              <span class="dt">ID =</span> patientID), <span class="kw">aes</span>(<span class="dt">x =</span> time, <span class="dt">y =</span> y_obs)) <span class="op">+</span></span>
-<span id="cb57-8"><a href="#cb57-8"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_wrap</span>(<span class="op">~</span>ID)</span>
-<span id="cb57-9"><a href="#cb57-9"></a>p</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>patientID &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, data<span class="op">$</span>N)</span>
+<span id="cb58-2"><a href="#cb58-2"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>data<span class="op">$</span>n_patients) {</span>
+<span id="cb58-3"><a href="#cb58-3"></a>  patientID[data<span class="op">$</span>start[i]<span class="op">:</span>data<span class="op">$</span>end[i]] &lt;-<span class="st"> </span>i </span>
+<span id="cb58-4"><a href="#cb58-4"></a>}</span>
+<span id="cb58-5"><a href="#cb58-5"></a></span>
+<span id="cb58-6"><a href="#cb58-6"></a>p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">data.frame</span>(<span class="dt">y_obs =</span> data<span class="op">$</span>y_obs, <span class="dt">time =</span> data<span class="op">$</span>time,</span>
+<span id="cb58-7"><a href="#cb58-7"></a>                              <span class="dt">ID =</span> patientID), <span class="kw">aes</span>(<span class="dt">x =</span> time, <span class="dt">y =</span> y_obs)) <span class="op">+</span></span>
+<span id="cb58-8"><a href="#cb58-8"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_wrap</span>(<span class="op">~</span>ID)</span>
+<span id="cb58-9"><a href="#cb58-9"></a>p</span></code></pre></div>
 <p><img src="lgm_stan_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <div id="PKa" class="section level3 unnumbered" number="">
 <h3>Building the model</h3>
@@ -1482,47 +1485,47 @@ This step requires some careful bookkeeping.</p>
 </div>
 <div id="PKb" class="section level3 unnumbered" number="">
 <h3>Run the model</h3>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a><span class="co"># Draw initialization from prior distribution</span></span>
-<span id="cb62-2"><a href="#cb62-2"></a>init &lt;-<span class="st"> </span><span class="cf">function</span>() {</span>
-<span id="cb62-3"><a href="#cb62-3"></a>  <span class="kw">list</span>(<span class="dt">sigma_0 =</span> <span class="kw">abs</span>(<span class="kw">rnorm</span>(<span class="dv">1</span>)), </span>
-<span id="cb62-4"><a href="#cb62-4"></a>       <span class="dt">sigma_1 =</span> <span class="kw">abs</span>(<span class="kw">rnorm</span>(<span class="dv">1</span>)),</span>
-<span id="cb62-5"><a href="#cb62-5"></a>       <span class="dt">sigma =</span> <span class="kw">abs</span>(<span class="kw">rnorm</span>(<span class="dv">1</span>)),</span>
-<span id="cb62-6"><a href="#cb62-6"></a>       <span class="dt">k_0_pop =</span>  <span class="kw">rnorm</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="fl">0.1</span>), </span>
-<span id="cb62-7"><a href="#cb62-7"></a>       <span class="dt">k_1_pop =</span> <span class="kw">rnorm</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.1</span>), </span>
-<span id="cb62-8"><a href="#cb62-8"></a>       <span class="dt">k_0 =</span> <span class="kw">rnorm</span>(data<span class="op">$</span>n_patients, <span class="dv">2</span>, <span class="fl">0.1</span>),</span>
-<span id="cb62-9"><a href="#cb62-9"></a>       <span class="dt">k_1 =</span> <span class="kw">rnorm</span>(data<span class="op">$</span>n_patients, <span class="dv">1</span>, <span class="fl">0.1</span>))</span>
-<span id="cb62-10"><a href="#cb62-10"></a>}</span>
-<span id="cb62-11"><a href="#cb62-11"></a></span>
-<span id="cb62-12"><a href="#cb62-12"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/one_cpt_ela.stan&quot;</span>)</span>
-<span id="cb62-13"><a href="#cb62-13"></a></span>
-<span id="cb62-14"><a href="#cb62-14"></a>num_warm =<span class="st"> </span><span class="dv">500</span></span>
-<span id="cb62-15"><a href="#cb62-15"></a>num_post =<span class="st"> </span><span class="dv">500</span></span>
-<span id="cb62-16"><a href="#cb62-16"></a>fit_laplace &lt;-<span class="st"> </span>mod<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> data, <span class="dt">init =</span> init,</span>
-<span id="cb62-17"><a href="#cb62-17"></a>                          <span class="dt">chains =</span> num_chains, <span class="dt">parallel_chains =</span> num_chains,</span>
-<span id="cb62-18"><a href="#cb62-18"></a>                          <span class="dt">iter_warmup =</span> num_warm, <span class="dt">iter_sampling =</span> num_post,</span>
-<span id="cb62-19"><a href="#cb62-19"></a>                          <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="co"># Draw initialization from prior distribution</span></span>
+<span id="cb63-2"><a href="#cb63-2"></a>init &lt;-<span class="st"> </span><span class="cf">function</span>() {</span>
+<span id="cb63-3"><a href="#cb63-3"></a>  <span class="kw">list</span>(<span class="dt">sigma_0 =</span> <span class="kw">abs</span>(<span class="kw">rnorm</span>(<span class="dv">1</span>)), </span>
+<span id="cb63-4"><a href="#cb63-4"></a>       <span class="dt">sigma_1 =</span> <span class="kw">abs</span>(<span class="kw">rnorm</span>(<span class="dv">1</span>)),</span>
+<span id="cb63-5"><a href="#cb63-5"></a>       <span class="dt">sigma =</span> <span class="kw">abs</span>(<span class="kw">rnorm</span>(<span class="dv">1</span>)),</span>
+<span id="cb63-6"><a href="#cb63-6"></a>       <span class="dt">k_0_pop =</span>  <span class="kw">rnorm</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="fl">0.1</span>), </span>
+<span id="cb63-7"><a href="#cb63-7"></a>       <span class="dt">k_1_pop =</span> <span class="kw">rnorm</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.1</span>), </span>
+<span id="cb63-8"><a href="#cb63-8"></a>       <span class="dt">k_0 =</span> <span class="kw">rnorm</span>(data<span class="op">$</span>n_patients, <span class="dv">2</span>, <span class="fl">0.1</span>),</span>
+<span id="cb63-9"><a href="#cb63-9"></a>       <span class="dt">k_1 =</span> <span class="kw">rnorm</span>(data<span class="op">$</span>n_patients, <span class="dv">1</span>, <span class="fl">0.1</span>))</span>
+<span id="cb63-10"><a href="#cb63-10"></a>}</span>
+<span id="cb63-11"><a href="#cb63-11"></a></span>
+<span id="cb63-12"><a href="#cb63-12"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/one_cpt_ela.stan&quot;</span>)</span>
+<span id="cb63-13"><a href="#cb63-13"></a></span>
+<span id="cb63-14"><a href="#cb63-14"></a>num_warm =<span class="st"> </span><span class="dv">500</span></span>
+<span id="cb63-15"><a href="#cb63-15"></a>num_post =<span class="st"> </span><span class="dv">500</span></span>
+<span id="cb63-16"><a href="#cb63-16"></a>fit_laplace &lt;-<span class="st"> </span>mod<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> data, <span class="dt">init =</span> init,</span>
+<span id="cb63-17"><a href="#cb63-17"></a>                          <span class="dt">chains =</span> num_chains, <span class="dt">parallel_chains =</span> num_chains,</span>
+<span id="cb63-18"><a href="#cb63-18"></a>                          <span class="dt">iter_warmup =</span> num_warm, <span class="dt">iter_sampling =</span> num_post,</span>
+<span id="cb63-19"><a href="#cb63-19"></a>                          <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
-## Chain 1 finished in 14.0 seconds.
-## Chain 2 finished in 14.4 seconds.
-## Chain 3 finished in 14.4 seconds.
-## Chain 4 finished in 15.5 seconds.
+## Chain 1 finished in 13.8 seconds.
+## Chain 2 finished in 14.2 seconds.
+## Chain 3 finished in 14.3 seconds.
+## Chain 4 finished in 15.3 seconds.
 ## 
 ## All 4 chains finished successfully.
-## Mean chain execution time: 14.6 seconds.
-## Total execution time: 15.9 seconds.</code></pre>
+## Mean chain execution time: 14.4 seconds.
+## Total execution time: 15.5 seconds.</code></pre>
 <p>When running this model, we get many messages warning us the Newton solver couldn’t solve the optimization problem and, for example, reached the maximum number of steps.
 The optimizer is particularly unstable during the early warmup stages and somewhat stabilizes later.</p>
 </div>
 <div id="PKc" class="section level3 unnumbered" number="">
 <h3>Comparison to benchmark</h3>
 <p>As a benchmark we run full HMC, using the model in <code>one_cpt.stan</code>.</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/one_cpt.stan&quot;</span>)</span>
-<span id="cb64-2"><a href="#cb64-2"></a></span>
-<span id="cb64-3"><a href="#cb64-3"></a>fit_full &lt;-<span class="st"> </span>mod<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> data, <span class="dt">init =</span> init,</span>
-<span id="cb64-4"><a href="#cb64-4"></a>                       <span class="dt">chains =</span> num_chains, <span class="dt">parallel_chains =</span> num_chains,</span>
-<span id="cb64-5"><a href="#cb64-5"></a>                       <span class="dt">iter_warmup =</span> num_warm, <span class="dt">iter_sampling =</span> num_post,</span>
-<span id="cb64-6"><a href="#cb64-6"></a>                        <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>mod &lt;-<span class="st"> </span><span class="kw">cmdstan_model</span>(<span class="st">&quot;model/one_cpt.stan&quot;</span>)</span>
+<span id="cb65-2"><a href="#cb65-2"></a></span>
+<span id="cb65-3"><a href="#cb65-3"></a>fit_full &lt;-<span class="st"> </span>mod<span class="op">$</span><span class="kw">sample</span>(<span class="dt">data =</span> data, <span class="dt">init =</span> init,</span>
+<span id="cb65-4"><a href="#cb65-4"></a>                       <span class="dt">chains =</span> num_chains, <span class="dt">parallel_chains =</span> num_chains,</span>
+<span id="cb65-5"><a href="#cb65-5"></a>                       <span class="dt">iter_warmup =</span> num_warm, <span class="dt">iter_sampling =</span> num_post,</span>
+<span id="cb65-6"><a href="#cb65-6"></a>                        <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
 ## Chain 1 finished in 0.4 seconds.
@@ -1533,65 +1536,65 @@ The optimizer is particularly unstable during the early warmup stages and somewh
 ## All 4 chains finished successfully.
 ## Mean chain execution time: 0.4 seconds.
 ## Total execution time: 0.5 seconds.</code></pre>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>n &lt;-<span class="st"> </span>num_chains <span class="op">*</span><span class="st"> </span>num_post</span>
-<span id="cb66-2"><a href="#cb66-2"></a></span>
-<span id="cb66-3"><a href="#cb66-3"></a>draws_ela &lt;-<span class="st"> </span>fit_laplace<span class="op">$</span><span class="kw">draws</span>()</span>
-<span id="cb66-4"><a href="#cb66-4"></a>draws_full &lt;-<span class="st"> </span>fit_full<span class="op">$</span><span class="kw">draws</span>()</span>
-<span id="cb66-5"><a href="#cb66-5"></a></span>
-<span id="cb66-6"><a href="#cb66-6"></a>n_parm &lt;-<span class="st"> </span><span class="dv">5</span></span>
-<span id="cb66-7"><a href="#cb66-7"></a>sigma &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">2</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">2</span>]))</span>
-<span id="cb66-8"><a href="#cb66-8"></a>sigma_<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">3</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">3</span>]))</span>
-<span id="cb66-9"><a href="#cb66-9"></a>sigma_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">4</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">4</span>]))</span>
-<span id="cb66-10"><a href="#cb66-10"></a>k_<span class="dv">0</span>_pop &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">5</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">5</span>]))</span>
-<span id="cb66-11"><a href="#cb66-11"></a>k_<span class="dv">1</span>_pop &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">6</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">6</span>]))</span>
-<span id="cb66-12"><a href="#cb66-12"></a></span>
-<span id="cb66-13"><a href="#cb66-13"></a>sample &lt;-<span class="st"> </span><span class="kw">c</span>(sigma, sigma_<span class="dv">0</span>, sigma_<span class="dv">1</span>, k_<span class="dv">0</span>_pop, k_<span class="dv">1</span>_pop)</span>
-<span id="cb66-14"><a href="#cb66-14"></a>method &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;HMC + Laplace&quot;</span>, <span class="st">&quot;(full) HMC&quot;</span>), <span class="dt">each =</span> n), n_parm)</span>
-<span id="cb66-15"><a href="#cb66-15"></a>parameter &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;sigma&quot;</span>, <span class="st">&quot;tau_1&quot;</span>, <span class="st">&quot;tau_2&quot;</span>, <span class="st">&quot;k_1_pop&quot;</span>, <span class="st">&quot;k_2_pop&quot;</span>), <span class="dt">each =</span>  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span>n) </span>
-<span id="cb66-16"><a href="#cb66-16"></a>parameter_labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">sigma&quot;</span>), <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">tau_1$&quot;</span>), <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">tau_2$&quot;</span>), </span>
-<span id="cb66-17"><a href="#cb66-17"></a>                      <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">k_{1, pop}$&quot;</span>), <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">k_{2, pop}$&quot;</span>))</span>
-<span id="cb66-18"><a href="#cb66-18"></a>parameter &lt;-<span class="st"> </span><span class="kw">factor</span>(parameter, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;sigma&quot;</span>, <span class="st">&quot;tau_1&quot;</span>, <span class="st">&quot;tau_2&quot;</span>,</span>
-<span id="cb66-19"><a href="#cb66-19"></a>                                          <span class="st">&quot;k_1_pop&quot;</span>, <span class="st">&quot;k_2_pop&quot;</span>),</span>
-<span id="cb66-20"><a href="#cb66-20"></a>                    <span class="dt">label =</span> parameter_labels)</span>
-<span id="cb66-21"><a href="#cb66-21"></a></span>
-<span id="cb66-22"><a href="#cb66-22"></a>post_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(sample, method, parameter)</span>
-<span id="cb66-23"><a href="#cb66-23"></a></span>
-<span id="cb66-24"><a href="#cb66-24"></a>plot_samples &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> post_data) <span class="op">+</span></span>
-<span id="cb66-25"><a href="#cb66-25"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample, <span class="dt">fill =</span> method), <span class="dt">alpha =</span> <span class="fl">0.5</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
-<span id="cb66-26"><a href="#cb66-26"></a>                 <span class="dt">bins =</span> <span class="dv">20</span>, <span class="dt">position =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></span>
-<span id="cb66-27"><a href="#cb66-27"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>parameter, <span class="dt">nrow =</span> <span class="dv">1</span>, <span class="dt">scale =</span> <span class="st">&quot;free&quot;</span>, </span>
-<span id="cb66-28"><a href="#cb66-28"></a>             <span class="dt">labeller =</span> <span class="st">&quot;label_parsed&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb66-29"><a href="#cb66-29"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
-<span id="cb66-30"><a href="#cb66-30"></a><span class="st">  </span><span class="kw">theme</span>(</span>
-<span id="cb66-31"><a href="#cb66-31"></a>    <span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">15</span>),</span>
-<span id="cb66-32"><a href="#cb66-32"></a>    <span class="dt">legend.direction =</span> <span class="st">&quot;vertical&quot;</span>,</span>
-<span id="cb66-33"><a href="#cb66-33"></a>    <span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
-<span id="cb66-34"><a href="#cb66-34"></a>  ) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;value&quot;</span>)</span>
-<span id="cb66-35"><a href="#cb66-35"></a></span>
-<span id="cb66-36"><a href="#cb66-36"></a>plot_samples</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>n &lt;-<span class="st"> </span>num_chains <span class="op">*</span><span class="st"> </span>num_post</span>
+<span id="cb67-2"><a href="#cb67-2"></a></span>
+<span id="cb67-3"><a href="#cb67-3"></a>draws_ela &lt;-<span class="st"> </span>fit_laplace<span class="op">$</span><span class="kw">draws</span>()</span>
+<span id="cb67-4"><a href="#cb67-4"></a>draws_full &lt;-<span class="st"> </span>fit_full<span class="op">$</span><span class="kw">draws</span>()</span>
+<span id="cb67-5"><a href="#cb67-5"></a></span>
+<span id="cb67-6"><a href="#cb67-6"></a>n_parm &lt;-<span class="st"> </span><span class="dv">5</span></span>
+<span id="cb67-7"><a href="#cb67-7"></a>sigma &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">2</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">2</span>]))</span>
+<span id="cb67-8"><a href="#cb67-8"></a>sigma_<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">3</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">3</span>]))</span>
+<span id="cb67-9"><a href="#cb67-9"></a>sigma_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">4</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">4</span>]))</span>
+<span id="cb67-10"><a href="#cb67-10"></a>k_<span class="dv">0</span>_pop &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">5</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">5</span>]))</span>
+<span id="cb67-11"><a href="#cb67-11"></a>k_<span class="dv">1</span>_pop &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">c</span>(draws_ela[, , <span class="dv">6</span>]), <span class="kw">c</span>(draws_full[, , <span class="dv">6</span>]))</span>
+<span id="cb67-12"><a href="#cb67-12"></a></span>
+<span id="cb67-13"><a href="#cb67-13"></a>sample &lt;-<span class="st"> </span><span class="kw">c</span>(sigma, sigma_<span class="dv">0</span>, sigma_<span class="dv">1</span>, k_<span class="dv">0</span>_pop, k_<span class="dv">1</span>_pop)</span>
+<span id="cb67-14"><a href="#cb67-14"></a>method &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;HMC + Laplace&quot;</span>, <span class="st">&quot;(full) HMC&quot;</span>), <span class="dt">each =</span> n), n_parm)</span>
+<span id="cb67-15"><a href="#cb67-15"></a>parameter &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;sigma&quot;</span>, <span class="st">&quot;tau_1&quot;</span>, <span class="st">&quot;tau_2&quot;</span>, <span class="st">&quot;k_1_pop&quot;</span>, <span class="st">&quot;k_2_pop&quot;</span>), <span class="dt">each =</span>  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span>n) </span>
+<span id="cb67-16"><a href="#cb67-16"></a>parameter_labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">sigma&quot;</span>), <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">tau_1$&quot;</span>), <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">tau_2$&quot;</span>), </span>
+<span id="cb67-17"><a href="#cb67-17"></a>                      <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">k_{1, pop}$&quot;</span>), <span class="kw">TeX</span>(<span class="st">&quot;$</span><span class="ch">\\</span><span class="st">k_{2, pop}$&quot;</span>))</span>
+<span id="cb67-18"><a href="#cb67-18"></a>parameter &lt;-<span class="st"> </span><span class="kw">factor</span>(parameter, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;sigma&quot;</span>, <span class="st">&quot;tau_1&quot;</span>, <span class="st">&quot;tau_2&quot;</span>,</span>
+<span id="cb67-19"><a href="#cb67-19"></a>                                          <span class="st">&quot;k_1_pop&quot;</span>, <span class="st">&quot;k_2_pop&quot;</span>),</span>
+<span id="cb67-20"><a href="#cb67-20"></a>                    <span class="dt">label =</span> parameter_labels)</span>
+<span id="cb67-21"><a href="#cb67-21"></a></span>
+<span id="cb67-22"><a href="#cb67-22"></a>post_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(sample, method, parameter)</span>
+<span id="cb67-23"><a href="#cb67-23"></a></span>
+<span id="cb67-24"><a href="#cb67-24"></a>plot_samples &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> post_data) <span class="op">+</span></span>
+<span id="cb67-25"><a href="#cb67-25"></a><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample, <span class="dt">fill =</span> method), <span class="dt">alpha =</span> <span class="fl">0.5</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb67-26"><a href="#cb67-26"></a>                 <span class="dt">bins =</span> <span class="dv">20</span>, <span class="dt">position =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></span>
+<span id="cb67-27"><a href="#cb67-27"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>parameter, <span class="dt">nrow =</span> <span class="dv">1</span>, <span class="dt">scale =</span> <span class="st">&quot;free&quot;</span>, </span>
+<span id="cb67-28"><a href="#cb67-28"></a>             <span class="dt">labeller =</span> <span class="st">&quot;label_parsed&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb67-29"><a href="#cb67-29"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb67-30"><a href="#cb67-30"></a><span class="st">  </span><span class="kw">theme</span>(</span>
+<span id="cb67-31"><a href="#cb67-31"></a>    <span class="dt">text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">15</span>),</span>
+<span id="cb67-32"><a href="#cb67-32"></a>    <span class="dt">legend.direction =</span> <span class="st">&quot;vertical&quot;</span>,</span>
+<span id="cb67-33"><a href="#cb67-33"></a>    <span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb67-34"><a href="#cb67-34"></a>  ) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;value&quot;</span>)</span>
+<span id="cb67-35"><a href="#cb67-35"></a></span>
+<span id="cb67-36"><a href="#cb67-36"></a>plot_samples</span></code></pre></div>
 <p><img src="lgm_stan_files/figure-html/unnamed-chunk-21-1.png" width="768" style="display: block; margin: auto;" /></p>
 <p>The two models return posterior samples is very good agreement.
 However for this problem full HMC offers is much faster and more stable solution than the integrated Laplace approximation.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>fit_laplace<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>fit_laplace<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
 <pre><code>## $total
-## [1] 15.85793
+## [1] 15.5081
 ## 
 ## $chains
 ##   chain_id warmup sampling  total
-## 1        1  8.830    5.216 14.046
-## 2        2  8.697    5.697 14.394
-## 3        3  8.438    5.935 14.373
-## 4        4  9.641    5.883 15.524</code></pre>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>fit_full<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
+## 1        1  8.641    5.155 13.796
+## 2        2  8.514    5.647 14.161
+## 3        3  8.328    5.939 14.267
+## 4        4  9.399    5.874 15.273</code></pre>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>fit_full<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
 <pre><code>## $total
-## [1] 0.4970241
+## [1] 0.5119569
 ## 
 ## $chains
 ##   chain_id warmup sampling total
-## 1        1  0.268    0.097 0.365
-## 2        2  0.319    0.098 0.417
-## 3        3  0.274    0.091 0.365
-## 4        4  0.306    0.086 0.392</code></pre>
+## 1        1  0.267    0.096 0.363
+## 2        2  0.332    0.099 0.431
+## 3        3  0.275    0.092 0.367
+## 4        4  0.304    0.087 0.391</code></pre>
 </div>
 </div>
 <div id="discussion" class="section level2 unnumbered" number="">
