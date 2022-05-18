@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 $$
-\text{DRAFT}
+\text{DRAFT -- update: May 18th 2022}
 $$
 
 ## Introduction {-#Introduction}
@@ -83,7 +83,7 @@ The later developed _general adjoint-differentiated Laplace approximation_ allow
 A particular challenge when using the integrated Laplace approximation is the requirement for higher-order derivatives of the likelihood.
 We will detail the constraints this puts on which likelihood we can use, as well as techniques to make differentiation efficient. 
 
-**Disclaimer:** The suite of functions presented in this notebook is a **prototype**.
+**DISCLAIMER:** The suite of functions presented in this notebook is a **prototype**.
 While we are confident in the use of the integrated Laplace approximation for conventional latent Gaussian models, we built a flexible API which allows users to tackle unorthodox models.
 These cases will stress-test our algorithms and motivate improvements.
 Readers should not lose sight of the research and experimental nature of this project.
@@ -232,20 +232,45 @@ by [@Piironen:2017] and [@Margossian:2020-laplace].
 Given how much of our geometric grief comes from the interaction
 between $\theta$ and $\phi$, it stands to reason that
 we may alleviate these issues by marginalizing out $\theta$
-and only handling the marginal posterior distribution
+and sampling from the marginal posterior distribution
 \begin{eqnarray*}
   \pi(\phi, \eta \mid y) & \propto & \pi(\phi, \eta) \pi(y \mid \phi, \eta) \\
-    & \propto & \pi(\phi, \eta) \int \pi(y \mid \theta, \phi, \eta) \mathrm d \theta
+    & \propto & \pi(\phi, \eta) \int \pi(y \mid \theta, \phi, \eta) \mathrm d \theta,
 \end{eqnarray*}
-We can then run MCMC, or any other inference methods, on $\phi$ and $\eta$.
-It is furthermore possible to recover samples for $\theta$,
-if we can construct the conditional distribution
+using MCMC, or any other inference methods, on $\phi$ and $\eta$.
+It is furthermore possible to recover samples for the posterior distribution of $\theta$,
+via a two-steps sampling procedure
+\begin{eqnarray*}
+  \phi, \eta & \sim & \pi(\phi, \eta \mid y) \\
+  \theta & \sim & \pi(\theta \mid \phi,\eta,  y).
+\end{eqnarray*}
+Together, these steps generate a sample from the joint posterior distribution $\pi(\phi, \eta, \theta \mid y)$.
+
+We may also be interested in doing inference on a new set of latent variables, $\theta^*$, for which we have no observations -- or at the very least, these observations were not used to fit the model.
+In a Machine Learning setting, $\theta$ may correspond to the latent variables for the training set, while $\theta^*$ would be the latent variable for a test set.
+The model is augmented accordingly, with a prior covariance between $\theta$ and $\theta^*$,
 $$
-  \pi(\theta \mid \phi,\eta,  y).
+  (\theta, \theta^*) \sim \text{Normal}(0, {\bf K}(\phi)),
 $$
+where $\bf K$ is the total covariance matrix, and
+$$
+ {\bf K(\phi)} = \begin{bmatrix}
+   K(\phi) & K^*(\phi) \\
+   K^*(\phi) & K^{**} (\phi),
+ \end{bmatrix}
+$$
+where $K$ is the prior covariance for $\theta$, $K^{**}$ the prior covariance for $\theta^*$ and $K^*$ the covariance between $\theta$ and $\theta^*$.
+
+Posterior samples for $\theta^*$ can also be obtained in a post-sampling step by drawing from
+$$
+  \theta^* \sim \pi(\theta^* \mid y, \phi, \eta),
+$$
+where the conditional distribution on the RHS depends on $\bf K$.
+
 
 Unfortunately, in all but a few simple cases
-we cannot calculate $\pi(\phi \mid y)$ and $\pi(\theta \mid \phi, y)$.
+we cannot calculate $\pi(\phi \mid y)$, $\pi(\theta \mid \phi, y)$,
+or $\pi(\theta^* \mid \phi, y)$ explicitly.
 However, exploiting the fact $\theta$ has a normal prior,
 we can approximate these distributions using a Laplace approximation.
 
@@ -609,8 +634,9 @@ with:
 * `real tolerance`: the convergence criterion for the Newton solver, defined as the change in the objective function, $\Psi(\theta) \propto \log \pi(\theta \mid y, \phi, \eta)$, between two iterations. (default value 1e-6).
 * `int max_num_steps`: the maximum number of steps after which the Newton solver gives up and returns a warning message.
 * `int hessian_block_size`: without loss of generality, we assume the Hessian, $\partial^2_\theta \log \pi(y \mid \theta, \eta)$, is block-diagonal.
-If the Hessian is diagonal, use `hessian_block_size = 0` (default value).
-Using 1 would work too but under the hood, the diagonal case allows for some faster operations.
+In the diagonal case, `hessian_block_size = 1` (default value).
+<!-- If the Hessian is diagonal, use `hessian_block_size = 0` (default value). -->
+<!-- Using 1 would work too but under the hood, the diagonal case allows for some faster operations. -->
 If the Hessian is dense, use `hessian_block_size = n` where `n` is the length of $\theta$.
 Exploiting the sparsity of the Hessian is often required to achieve fast computation.
 You may consider constructing $\theta$ in a way that makes the Hessian sparse.

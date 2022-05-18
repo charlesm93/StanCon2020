@@ -208,7 +208,7 @@ Latent Gaussian models are a common class of Bayesian hierarchical models, chara
 </div>
 </div>
 <p><span class="math display">\[
-\text{DRAFT}
+\text{DRAFT -- update: May 18th 2022}
 \]</span></p>
 <div id="Introduction" class="section level2 unnumbered" number="">
 <h2>Introduction</h2>
@@ -270,7 +270,7 @@ The main technical innovation of our implementation is an <em>adjoint-differenti
 The later developed <em>general adjoint-differentiated Laplace approximation</em> allows us to handle user-specified likelihoods, <span class="math inline">\(\pi(y \mid \theta, \eta)\)</span> <span class="citation">(Margossian 2022, Chapter 5)</span>.
 A particular challenge when using the integrated Laplace approximation is the requirement for higher-order derivatives of the likelihood.
 We will detail the constraints this puts on which likelihood we can use, as well as techniques to make differentiation efficient.</p>
-<p><strong>Disclaimer:</strong> The suite of functions presented in this notebook is a <strong>prototype</strong>.
+<p><strong>DISCLAIMER:</strong> The suite of functions presented in this notebook is a <strong>prototype</strong>.
 While we are confident in the use of the integrated Laplace approximation for conventional latent Gaussian models, we built a flexible API which allows users to tackle unorthodox models.
 These cases will stress-test our algorithms and motivate improvements.
 Readers should not lose sight of the research and experimental nature of this project.</p>
@@ -348,7 +348,7 @@ the Hessian of the likelihood <span class="math inline">\(\pi(y \mid \theta)\)</
 <h3>Example 2: Gaussian process</h3>
 <p>The <span class="math inline">\(\theta\)</span>’s in equation <a href="#eq:lgm">(1)</a> can be the realizations of a Gaussian process – a non-parametric function –,
 which then inform the observational distribution of <span class="math inline">\(y\)</span>.
-For an introduction to the subject in Stan, see <span class="citation">(<span class="citeproc-not-found" data-reference-id="Trangucci:2017"><strong>???</strong></span>)</span> and <span class="citation">(<span class="citeproc-not-found" data-reference-id="Betancourt_gp:2017"><strong>???</strong></span>)</span>.
+For an introduction to the subject in Stan, see <span class="citation">Trangucci (2017)</span> and <span class="citation">Betancourt (2017)</span>.
 Quite remarkably, to model a Gaussian process, it suffices to study a finite number of realizations,
 which follow a normal distribution
 <span class="math display">\[
@@ -405,19 +405,41 @@ by <span class="citation">(Piironen and Vehtari 2017)</span> and <span class="ci
 <p>Given how much of our geometric grief comes from the interaction
 between <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\phi\)</span>, it stands to reason that
 we may alleviate these issues by marginalizing out <span class="math inline">\(\theta\)</span>
-and only handling the marginal posterior distribution
+and sampling from the marginal posterior distribution
 <span class="math display">\[\begin{eqnarray*}
   \pi(\phi, \eta \mid y) &amp; \propto &amp; \pi(\phi, \eta) \pi(y \mid \phi, \eta) \\
-    &amp; \propto &amp; \pi(\phi, \eta) \int \pi(y \mid \theta, \phi, \eta) \mathrm d \theta
+    &amp; \propto &amp; \pi(\phi, \eta) \int \pi(y \mid \theta, \phi, \eta) \mathrm d \theta,
 \end{eqnarray*}\]</span>
-We can then run MCMC, or any other inference methods, on <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\eta\)</span>.
-It is furthermore possible to recover samples for <span class="math inline">\(\theta\)</span>,
-if we can construct the conditional distribution
+using MCMC, or any other inference methods, on <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\eta\)</span>.
+It is furthermore possible to recover samples for the posterior distribution of <span class="math inline">\(\theta\)</span>,
+via a two-steps sampling procedure
+<span class="math display">\[\begin{eqnarray*}
+  \phi, \eta &amp; \sim &amp; \pi(\phi, \eta \mid y) \\
+  \theta &amp; \sim &amp; \pi(\theta \mid \phi,\eta,  y).
+\end{eqnarray*}\]</span>
+Together, these steps generate a sample from the joint posterior distribution <span class="math inline">\(\pi(\phi, \eta, \theta \mid y)\)</span>.</p>
+<p>We may also be interested in doing inference on a new set of latent variables, <span class="math inline">\(\theta^*\)</span>, for which we have no observations – or at the very least, these observations were not used to fit the model.
+In a Machine Learning setting, <span class="math inline">\(\theta\)</span> may correspond to the latent variables for the training set, while <span class="math inline">\(\theta^*\)</span> would be the latent variable for a test set.
+The model is augmented accordingly, with a prior covariance between <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\theta^*\)</span>,
 <span class="math display">\[
-  \pi(\theta \mid \phi,\eta,  y).
-\]</span></p>
+  (\theta, \theta^*) \sim \text{Normal}(0, {\bf K}(\phi)),
+\]</span>
+where <span class="math inline">\(\bf K\)</span> is the total covariance matrix, and
+<span class="math display">\[
+ {\bf K(\phi)} = \begin{bmatrix}
+   K(\phi) &amp; K^*(\phi) \\
+   K^*(\phi) &amp; K^{**} (\phi),
+ \end{bmatrix}
+\]</span>
+where <span class="math inline">\(K\)</span> is the prior covariance for <span class="math inline">\(\theta\)</span>, <span class="math inline">\(K^{**}\)</span> the prior covariance for <span class="math inline">\(\theta^*\)</span> and <span class="math inline">\(K^*\)</span> the covariance between <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\theta^*\)</span>.</p>
+<p>Posterior samples for <span class="math inline">\(\theta^*\)</span> can also be obtained in a post-sampling step by drawing from
+<span class="math display">\[
+  \theta^* \sim \pi(\theta^* \mid y, \phi, \eta),
+\]</span>
+where the conditional distribution on the RHS depends on <span class="math inline">\(\bf K\)</span>.</p>
 <p>Unfortunately, in all but a few simple cases
-we cannot calculate <span class="math inline">\(\pi(\phi \mid y)\)</span> and <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>.
+we cannot calculate <span class="math inline">\(\pi(\phi \mid y)\)</span>, <span class="math inline">\(\pi(\theta \mid \phi, y)\)</span>,
+or <span class="math inline">\(\pi(\theta^* \mid \phi, y)\)</span> explicitly.
 However, exploiting the fact <span class="math inline">\(\theta\)</span> has a normal prior,
 we can approximate these distributions using a Laplace approximation.</p>
 <div id="a" class="section level3 unnumbered" number="">
@@ -749,8 +771,9 @@ You will however get a C++ error message when you run the model.</p>
 <li><code>real tolerance</code>: the convergence criterion for the Newton solver, defined as the change in the objective function, <span class="math inline">\(\Psi(\theta) \propto \log \pi(\theta \mid y, \phi, \eta)\)</span>, between two iterations. (default value 1e-6).</li>
 <li><code>int max_num_steps</code>: the maximum number of steps after which the Newton solver gives up and returns a warning message.</li>
 <li><code>int hessian_block_size</code>: without loss of generality, we assume the Hessian, <span class="math inline">\(\partial^2_\theta \log \pi(y \mid \theta, \eta)\)</span>, is block-diagonal.
-If the Hessian is diagonal, use <code>hessian_block_size = 0</code> (default value).
-Using 1 would work too but under the hood, the diagonal case allows for some faster operations.
+In the diagonal case, <code>hessian_block_size = 1</code> (default value).
+<!-- If the Hessian is diagonal, use `hessian_block_size = 0` (default value). -->
+<!-- Using 1 would work too but under the hood, the diagonal case allows for some faster operations. -->
 If the Hessian is dense, use <code>hessian_block_size = n</code> where <code>n</code> is the length of <span class="math inline">\(\theta\)</span>.
 Exploiting the sparsity of the Hessian is often required to achieve fast computation.
 You may consider constructing <span class="math inline">\(\theta\)</span> in a way that makes the Hessian sparse.</li>
@@ -872,14 +895,14 @@ on <span class="math inline">\(\rho\)</span> and <span class="math inline">\(\al
 <span id="cb24-9"><a href="#cb24-9"></a><span class="dt">iter_warmup =</span> <span class="dv">500</span>, <span class="dt">iter_sampling =</span> <span class="dv">500</span>, <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
-## Chain 3 finished in 7.4 seconds.
-## Chain 1 finished in 7.6 seconds.
-## Chain 2 finished in 7.8 seconds.
-## Chain 4 finished in 7.9 seconds.
+## Chain 3 finished in 7.1 seconds.
+## Chain 1 finished in 7.3 seconds.
+## Chain 2 finished in 7.5 seconds.
+## Chain 4 finished in 7.5 seconds.
 ## 
 ## All 4 chains finished successfully.
-## Mean chain execution time: 7.7 seconds.
-## Total execution time: 8.0 seconds.</code></pre>
+## Mean chain execution time: 7.4 seconds.
+## Total execution time: 7.6 seconds.</code></pre>
 <p>There are no warning messages.
 Let’s examine a summary of our fit for certain parameters of interest.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>fit<span class="op">$</span><span class="kw">summary</span>(<span class="kw">c</span>(<span class="st">&quot;lp__&quot;</span>, <span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;rho&quot;</span>, <span class="st">&quot;theta[1]&quot;</span>, <span class="st">&quot;theta[2]&quot;</span>))</span></code></pre></div>
@@ -1506,14 +1529,14 @@ This step requires some careful bookkeeping.</p>
 <span id="cb63-19"><a href="#cb63-19"></a>                          <span class="dt">seed =</span> <span class="dv">123</span>, <span class="dt">refresh =</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
-## Chain 1 finished in 13.8 seconds.
-## Chain 2 finished in 14.2 seconds.
-## Chain 3 finished in 14.3 seconds.
+## Chain 1 finished in 13.7 seconds.
+## Chain 2 finished in 14.1 seconds.
+## Chain 3 finished in 14.1 seconds.
 ## Chain 4 finished in 15.3 seconds.
 ## 
 ## All 4 chains finished successfully.
-## Mean chain execution time: 14.4 seconds.
-## Total execution time: 15.5 seconds.</code></pre>
+## Mean chain execution time: 14.3 seconds.
+## Total execution time: 15.6 seconds.</code></pre>
 <p>When running this model, we get many messages warning us the Newton solver couldn’t solve the optimization problem and, for example, reached the maximum number of steps.
 The optimizer is particularly unstable during the early warmup stages and somewhat stabilizes later.</p>
 </div>
@@ -1529,8 +1552,8 @@ The optimizer is particularly unstable during the early warmup stages and somewh
 <pre><code>## Running MCMC with 4 parallel chains...
 ## 
 ## Chain 1 finished in 0.4 seconds.
+## Chain 2 finished in 0.5 seconds.
 ## Chain 3 finished in 0.4 seconds.
-## Chain 2 finished in 0.4 seconds.
 ## Chain 4 finished in 0.4 seconds.
 ## 
 ## All 4 chains finished successfully.
@@ -1577,24 +1600,24 @@ The optimizer is particularly unstable during the early warmup stages and somewh
 However for this problem full HMC offers is much faster and more stable solution than the integrated Laplace approximation.</p>
 <div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>fit_laplace<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
 <pre><code>## $total
-## [1] 15.5081
+## [1] 15.55523
 ## 
 ## $chains
 ##   chain_id warmup sampling  total
-## 1        1  8.641    5.155 13.796
-## 2        2  8.514    5.647 14.161
-## 3        3  8.328    5.939 14.267
-## 4        4  9.399    5.874 15.273</code></pre>
+## 1        1  8.650    5.072 13.722
+## 2        2  8.501    5.558 14.059
+## 3        3  8.288    5.857 14.145
+## 4        4  9.434    5.858 15.292</code></pre>
 <div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>fit_full<span class="op">$</span><span class="kw">time</span>()</span></code></pre></div>
 <pre><code>## $total
-## [1] 0.5119569
+## [1] 0.5122619
 ## 
 ## $chains
 ##   chain_id warmup sampling total
-## 1        1  0.267    0.096 0.363
-## 2        2  0.332    0.099 0.431
-## 3        3  0.275    0.092 0.367
-## 4        4  0.304    0.087 0.391</code></pre>
+## 1        1  0.291    0.103 0.394
+## 2        2  0.348    0.104 0.452
+## 3        3  0.290    0.097 0.387
+## 4        4  0.329    0.094 0.423</code></pre>
 </div>
 </div>
 <div id="discussion" class="section level2 unnumbered" number="">
@@ -1646,7 +1669,10 @@ that exploit matrix sparsity, GPUs, and parallelization.</p>
 <p>Agrawal, Raj, Jonathan H Huggins, Brians Trippe, and Tamara Broderick. 2019. “The Kernel Interaction Trick: Fast Bayesian Discovery of Pairwise Interactions in High Dimensions.” <em>Proceedings of the 36th International Conference on Machine Learning</em> 97.</p>
 </div>
 <div>
-<p>Betancourt, Michael. 2018. “A Conceptual Introduction to Hamiltonian Monte Carlo.” <em>arXiv:1701.02434v1</em>.</p>
+<p>Betancourt, Michael. 2017. “Robust Gaussian Processes in Stan.” <a href="ttps://github.com/betanalpha/knitr_case_studies/tree/master/gaussian_processes">ttps://github.com/betanalpha/knitr_case_studies/tree/master/gaussian_processes</a>.</p>
+</div>
+<div>
+<p>———. 2018. “A Conceptual Introduction to Hamiltonian Monte Carlo.” <em>arXiv:1701.02434v1</em>.</p>
 </div>
 <div>
 <p>Betancourt, Michael, and Mark Girolami. 2015. “Current Trends in Bayesian Methodology with Applications.” In. Chapman; Hall/CRC. <a href="https://doi.org/10.1201/b18502-5">https://doi.org/10.1201/b18502-5</a>.</p>
@@ -1683,6 +1709,9 @@ that exploit matrix sparsity, GPUs, and parallelization.</p>
 </div>
 <div>
 <p>Rue, Havard, Andrea Riebler, Sigrunn Sorbye, Janine Illian, Daniel Simson, and Finn Lindgren. 2017. “Bayesian Computing with INLA: A Review.” <em>Annual Review of Statistics and Its Application</em> 4: 395–421. <a href="https://doi.org/https://doi.org/10.1146/annurev-statistics-060116-054045">https://doi.org/https://doi.org/10.1146/annurev-statistics-060116-054045</a>.</p>
+</div>
+<div>
+<p>Trangucci, Rob. 2017. “Hierarchical Gaussian Processes in Stan.” <a href="https://doi.org/10.5281/zenodo.1284293">https://doi.org/10.5281/zenodo.1284293</a>.</p>
 </div>
 <div>
 <p>Vanhatalo, Jarno, Ville Pietiläinen, and Aki Vehtari. 2010. “Approximate Inference for Disease Mapping with Sparse Gaussian Processes.” <em>Statistics in Medicine</em> 29 (15): 1580–1607.</p>
