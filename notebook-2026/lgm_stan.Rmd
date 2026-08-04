@@ -1,11 +1,11 @@
 ---
-title: "Approximate Bayesian inference for latent Gaussian models in Stan (v3)"
+title: "Approximate Bayesian inference for latent Gaussian models in Stan"
 author:
 - Charles C. Margossian^[Department of Statistics, University of British Columbia], Steve Bronder^[Center for Computational Mathematics, Flatiron Institute], Aki Vehtari^[Department of Computer Science, Aalto University], Daniel Simpson^[while at Department of Statistical Sciences, University of Toronto] and Raj Agrawal^[while at CSAIL, Massachusetts Institute of Technology]
 output: bookdown::gitbook
 keep_tex: true
-citation_package: natbib
-link-citations: true
+# citation_package: natbib
+# link-citations: true
 bibliography: references_curated.bib
 abstract: >
   Latent Gaussian models are a common class of Bayesian hierarchical
@@ -16,8 +16,9 @@ abstract: >
   latent Gaussian variables and run inference on a marginal posterior. When
   exact marginalization is not possible, we can perform _approximate_
   marginalization using an embedded Laplace approximation. In this case study,
-  we demonstrate how to use Stan's embedded Laplace approximation on two Gaussian
-  process examples: one application in spatial epidemiology and one in genetics.
+  we demonstrate how to use Stan's embedded Laplace approximation
+  (released in version 2.39) on two Gaussian process examples:
+  one application in spatial epidemiology and one in genetics.
 ---
 
 ```{r setup, include=FALSE}
@@ -33,7 +34,7 @@ This notebook is an update of a [2022 case study](https://htmlpreview.github.io/
 ## Introduction {#Introduction}
 
 Latent Gaussian models are a class of hierarchical models defined by the 
-following data generating process,
+data generating process,
 \begin{equation}
 \begin{split}
   \phi, \eta & \sim p(\phi, \eta), \\
@@ -54,12 +55,14 @@ and reintroduce it when relevant.)
 
 Latent Gaussian models find a broad range of applications, including
 hierarchical models, sparse linear regression and Gaussian process models.
-Because of the normal prior on $\theta$, they are subject to convenient 
-manipulations that can improve Bayesian computation.
+Because of the normal prior on $\theta$, latent Gaussian models can be
+amiable to certain approximations which can make Bayesian computation faster.
 
-Markov chain Monte Carlo (MCMC) sampling can struggle with the geometry of the
-posterior $p(\theta, \phi \mid y)$ because it can exhibit high-dimensional
-funnels and more generally non-finite curvature [@Neal:2003; @Betancourt:2015].
+Latent Gaussian models often induce a posterior with a challenging geometry,
+which can frustrate standard algorithms such as Markov chain Monte Carlo
+(MCMC) [@Neal:2003; @Betancourt:2015].
+This posterior can, for example, exhibit high-dimensional funnels and more 
+generally non-finite curvature .
 Much of the geometric grief we experience comes from the interaction
 between $\phi$ and $\theta$.
 
@@ -79,33 +82,34 @@ including INLA [@Rue:2009; @Rue:2017], GPStuff [@Vanhatalo:2013] and
 TMB [@Kristensen:2016], and now a feature available in Stan as of version 2.39.
 
 There are several reasons for using the embedded Laplace approximation in Stan.
-First, we can take advantage of Stan's rich language when specifying models.
-Secondly, Stan boasts an efficient automatic differentiation library, and
-Stan's embedded Laplace approximation itself uses a differentiation algorithm
-which is flexible and scales well with the dimension of $\phi$
+First, we can take advantage of Stan's rich language when specifying models,
+including latent Gaussian models with an unconventional likelihood or,
+as we will demonstrate in this notebook, an unconventional prior.
+Second, we can use any one of Stan's inference algorithms to compute 
+$p(\phi \mid y)$, including Hamiltonian Monte Carlo, variational inference, 
+and an even larger array of methods if using [BridgeStan](https://github.com/roualdes/bridgestan).
+This is in part due to Stan's efficient automatic differentiation,
+which lets us calculate gradients of the approximate marginal likelihood
 [@Margossian:2020-laplace; @Margossian:2023].
-Finally, any one of Stan's inference algorithms can be used to do inference on 
-$p(\phi \mid y)$,
-including Hamiltonian Monte Carlo, variational inference, and an even
-larger array of methods if using [BridgeStan](https://github.com/roualdes/bridgestan).
+
 On the other hand, Stan's embedded Laplace approximation currently lacks support 
 for sparse matrices, e.g., the prior covariance or prior precision matrix.
 In cases where sparsity is key to ensure reasonably efficient inference,
 the user should consider implementations of the embedded Laplace approximation
-in INLA and TMB.
+in INLA or TMB.
 
 
-### Changes since v2.0 (2022) {#b}
+### Changes to the notebook since v2.0 (2022) {#b}
 
 * This notebook uses Stan's released embedded Laplace approximation (v2.39.0),
 rather than a prototype. Furthermore, all models have been updated to match the
 syntax of Stan v2.39.0.
 * This notebook is more concise. I've removed the section "Gaussian variables
-(hidding in the wild) and the pharmacokinetic example. The goal was to make
+(hidding in the wild)" and the pharmacokinetic example. The goal was to make
 the discussion a bit more focused.
 * Numerous small edits.
 
-### Changes since v1.0 (2020) {#c}
+### Changes to the notebook since v1.0 (2020) {#c}
 
 * The notebook begins with an example where exact marginalization is possible.
 * The prior covariance function no longer needs to follow a strict signature and the Laplace routines now admit variadic arguments.
@@ -135,17 +139,16 @@ num_post <- 500
 ## Tools for Bayesian inference {#bayesian}
 
 Our goal is to characterize the joint posterior distribution
-$$
-  p(\theta, \phi\mid y).
-$$
-A tool of choice is Hamiltonian Monte Carlo (HMC), however there are known 
-challenges when using HMC to fit multilevel models. Indeed, the interaction 
-between $\phi$ and $\theta$ can lead to an intricate geometry, resulting in
-biased samples. We can often bypass these issues by reparameterizing the model
+$p(\theta, \phi\mid y)$.
+
+Hamiltonian Monte Carlo (HMC) is a tool of choice but can struggle to fit
+multilevel models because of the interaction between $\theta$ and $\phi$ in
+the posterior.
+We can often bypass these issues by reparameterizing the model
 and fine-tuning HMC. But this process is cumbersome, especially when working 
 on computationally intensive models. Finding an acceptable parameterization
-and properly tuning HMC usually requires multiple fits, which becomes
-burdensome when each fit requires several hours.
+and properly tuning HMC may require multiple fits, which becomes
+burdensome when each fit takes several hours.
 
 Our geometric grief typically arises from the interaction
 between $\theta$ and $\phi$ (e.g., funnels). This motivates a strategy
@@ -167,9 +170,8 @@ Together, these steps generate samples from the joint posterior
 distribution $p(\phi, \theta \mid y)$.
 
 Usually, we cannot calculate $p(\phi \mid y)$ or $p(\theta \mid \phi, y)$ 
-explicitly. However, exploiting the fact $\theta$ has a normal prior,
-we can sometimes obtain accurate approximations of these distributions 
-using a Laplace approximation.
+explicitly. However, we can sometimes obtain accurate approximations of these
+conditional distributions.
 
 ### Exact Marginalization {#a}
 
@@ -331,14 +333,14 @@ $$
   \hat p(\theta \mid \phi, y) \approx p(\theta \mid \phi, y).
 $$
 
-Formally, the Laplace approximation is a second-order Taylor expansion of
+The Laplace approximation is a second-order Taylor expansion of
 $\log p(\theta \mid \phi, y)$ around the mode 
 $\theta^* = \text{argmax}_\theta \ p(\theta \mid \phi, y)$,
 \begin{eqnarray*}
-  \log \hat p(\theta \mid \phi, y) = & \log p(\theta^*|\phi, y) + \left (\nabla_\theta \log p(\theta|\phi, y) \large |_{\theta=\theta^*} \right)^T (\theta - \theta^*) \\ & + \frac{1}{2} (\theta-\theta^*)^T \frac{\partial^2 \log p(\theta|\phi, y)}{\partial \theta^2} {\large |_{\theta=\theta^*}} (\theta - \theta^*).
+  \log \hat p(\theta \mid \phi, y) = & \log p(\theta^*|\phi, y) + \left (\nabla_\theta \log p(\theta|\phi, y) \large |_{\theta=\theta^*} \right)^T (\theta - \theta^*) \\ & + \frac{1}{2} (\theta-\theta^*)^T \left (\frac{\partial^2 \log p(\theta|\phi, y)}{\partial \theta^2} {\large |_{\theta=\theta^*}} \right) (\theta - \theta^*).
 \end{eqnarray*}
 This Taylor expansion defines a normal approximation.
-To see this, first note that in the above expression, the first term can be ignored, because it is constant
+To see this, note that in the above expression, the first term can be ignored, because it is constant
 with respect to $\theta$, and the second term vanishes, because the gradient is 
 null at the mode. We are then left with the third and quadratic
 term, which corresponds to the logarithm of an unormalized normal density centered
@@ -434,7 +436,7 @@ and the Hessian of the log-likelihood with respect to $\theta$ is
 diagonal. To see this, we simply note that for any off-diagonal element,
 i.e., $i\neq j$,
 $$
-  \frac{\partial^2}{\partial \theta_j \theta_i} \log p(y \mid \theta, \eta) = \sum_i \frac{\partial^2}{\partial \theta_j \theta_i} \log p(y_i \mid \theta_i, \eta) = 0.
+  \frac{\partial^2}{\partial \theta_j \theta_i} \log p(y \mid \theta, \eta) = \sum_k \frac{\partial^2}{\partial \theta_j \theta_i} \log p(y_k \mid \theta_k, \eta) = 0.
 $$
 
 In this case, we would specify `hessian_block_size = 1`.
@@ -614,13 +616,7 @@ plot <- ggplot(data = plot_data,
 plot
 ```
 
-This plot highlights regions which, per our analysis, are more at risk. There
-are several limitations worth pointing out. First we only used 100 counties, 
-so the resolution is limited. (Can you tell that the above is a map of
-Finland?). It is of course possible to run the analysis on
-all 911 counties and get more fine-grained results. Secondly, this plot does 
-not capture the posterior variance of our estimates. Including this information 
-in a map is tricky, but strategies exist (e.g. use multiple maps).
+This plot highlights regions which, per our analysis, are more at risk.
 
 
 ### Embedded Laplace approximation with a built-in likelihood
@@ -664,7 +660,7 @@ added and when needed, users can always specify their own likelihood.
 
 ## Sparse kernel interaction model {#skim}
 
-In this next example, we examine a prostate cancer classification data set^[Available on [http://featureselection.asu.edu/datasets.php](http://featureselection.asu.edu/datasets.php).].
+In this next example, we examine a prostate cancer classification data set.^[Available on [http://featureselection.asu.edu/datasets.php](http://featureselection.asu.edu/datasets.php).]
 The goal of the study is to identify predictors for the development of 
 prostate cancer. For each patient, $d \approx 6,000$ covariates are measured,
 and a binary variable indicates whether or not the patient develops cancer.
@@ -733,7 +729,7 @@ Then
 For more details, see @Agrawal:2019 and Appendix E.3 of @Margossian:2020-laplace.
 
 Since this is a latent Gaussian model, we can use the embedded Laplace 
-approximation to marginalize out $f$, just as we have done in the previous
+approximation to marginalize out $\theta$, just as we have done in the previous
 example.
 
 The key steps lie in the `functions` block where we define a function which 
@@ -745,13 +741,8 @@ functions {
     return bernoulli_logit_lpmf(y | theta);
   }
 
-  matrix covariance_function (vector kappa_squared,
-                              real eta_one,
-                              real eta_two,
-                              matrix x,
-                              matrix x2,
-                              int n,
-                              int d,
+  matrix covariance_function (vector kappa_squared, real eta_one,  real eta_two,
+                              matrix x, matrix x2, int n, int d,
                               real scale_icept) {
     matrix[n, n] K1 = diag_post_multiply(x, kappa_squared) * x';
     matrix[n, n] K2 = diag_post_multiply(x2, kappa_squared) * x2';
@@ -935,7 +926,7 @@ plot <- ggplot(data = plot_data, aes(x = p_full, y = p_laplace)) +
 plot
 ```
 
-The model with an embedded Laplace approximation produces more conservative
+The model with an embedded Laplace approximation produces slightly more conservative
 probabilities (i.e., regressed towards 0.5).
 
 Finally, we make a high-level comparison of runtimes. In this example and for
@@ -962,12 +953,11 @@ some cases, the Laplace approximation---which must be evaluated at each
 iteration---can be costly and the bias introduced by the approximation
 non-negligible. How exactly these trade-offs resolve depends on the application.
 
-In this notebook, I presented two Gaussian process applications where the
+In this notebook, we presented two Gaussian process applications where the
 embedded Laplace approximation is fast and accurate---at least in terms of
 downstream scientific applications, e.g., variable selection and prediction.
 Future case studies will further characterize the benefits and challenges of
 using the embedded Laplace approximation in Stan and discuss how to check the
 accuracy of the approximation.
 
-## References {-#my-section}
-
+## References {-#reference}
