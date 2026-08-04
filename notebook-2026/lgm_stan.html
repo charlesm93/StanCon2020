@@ -4,23 +4,23 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Approximate Bayesian inference for latent Gaussian models in Stan</title>
-  <meta name="description" content="Approximate Bayesian inference for latent Gaussian models in Stan" />
+  <title>Approximate Bayesian inference for latent Gaussian models in Stan (v3)</title>
+  <meta name="description" content="Approximate Bayesian inference for latent Gaussian models in Stan (v3)" />
   <meta name="generator" content="bookdown 0.47 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Approximate Bayesian inference for latent Gaussian models in Stan" />
+  <meta property="og:title" content="Approximate Bayesian inference for latent Gaussian models in Stan (v3)" />
   <meta property="og:type" content="book" />
   
   
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Approximate Bayesian inference for latent Gaussian models in Stan" />
+  <meta name="twitter:title" content="Approximate Bayesian inference for latent Gaussian models in Stan (v3)" />
   
   
   
 
-<meta name="author" content="Charles C. Margossian" />
+<meta name="author" content="Charles C. Margossian, Steve Bronder, Aki Vehtari, Daniel Simpson and Raj Agrawal" />
 
 
 
@@ -204,7 +204,7 @@ div.csl-indent {
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Approximate Bayesian inference for latent Gaussian models in Stan</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Approximate Bayesian inference for latent Gaussian models in Stan (v3)</a>
           </h1>
         </div>
 
@@ -213,17 +213,17 @@ div.csl-indent {
 
             <section class="normal" id="section-">
 <div id="header">
-<h1 class="title">Approximate Bayesian inference for latent Gaussian models in Stan</h1>
-<p class="author"><em>Charles C. Margossian<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></em></p>
+<h1 class="title">Approximate Bayesian inference for latent Gaussian models in Stan (v3)</h1>
+<p class="author"><em>Charles C. Margossian<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Steve Bronder<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>, Aki Vehtari<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>, Daniel Simpson<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> and Raj Agrawal<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></em></p>
 <div class="abstract">
 <p class="abstract">Abstract</p>
-<p>Latent Gaussian models are a common class of Bayesian hierarchical models, characterized by a normally distributed latent variable. These models often induce a posterior with a geometry that frustrates Bayesian inference algorithms, including Stan’s Hamiltonian Monte Carlo (HMC), resulting in slow and biased inference. To alleviate these difficulties, we can marginalize out the latent Gaussian variables and run inference on a marginal posterior. When exact marginalization is not possible, we can perform <em>approximate</em> marginalization using an embedded Laplace approximation. In this case study, I demonstrate how to use Stan’s embedded Laplace approximation on two Gaussian process examples: one application in spatial epidemiology and one in genetics.</p>
+<p>Latent Gaussian models are a common class of Bayesian hierarchical models, characterized by a normally distributed latent variable. These models often induce a posterior with a geometry that frustrates Bayesian inference algorithms, including Stan’s Hamiltonian Monte Carlo (HMC), resulting in slow and biased inference. To alleviate these difficulties, we can marginalize out the latent Gaussian variables and run inference on a marginal posterior. When exact marginalization is not possible, we can perform <em>approximate</em> marginalization using an embedded Laplace approximation. In this case study, we demonstrate how to use Stan’s embedded Laplace approximation on two Gaussian process examples: one application in spatial epidemiology and one in genetics.</p>
 </div>
 </div>
 <p><span class="math display">\[
-\text{v3.0 -- updated: July 2026}
+\text{v3.0 DRAFT -- updated: July 2026}
 \]</span></p>
-<p>This notebook builds closely on a <a href="https://htmlpreview.github.io/?https://github.com/charlesm93/StanCon2020/blob/master/notebook-2022/lgm_stan.html">2022 case study</a> written for a prototype embedded Laplace approximation.</p>
+<p>This notebook is an update of a <a href="https://htmlpreview.github.io/?https://github.com/charlesm93/StanCon2020/blob/master/notebook-2022/lgm_stan.html">2022 case study</a> written for Stan’s prototype embedded Laplace approximation.</p>
 <div id="Introduction" class="section level2 hasAnchor" number="1">
 <h2><span class="header-section-number">1</span> Introduction<a href="#Introduction" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Latent Gaussian models are a class of hierarchical models defined by the
@@ -289,8 +289,10 @@ in INLA and TMB.</p>
 <li>This notebook uses Stan’s released embedded Laplace approximation (v2.39.0),
 rather than a prototype. Furthermore, all models have been updated to match the
 syntax of Stan v2.39.0.</li>
-<li>This notebook is more concise and I’ve removed the pharmacokinetic example
-which was intriguing but not practical.</li>
+<li>This notebook is more concise. I’ve removed the section “Gaussian variables
+(hidding in the wild) and the pharmacokinetic example. The goal was to make
+the discussion a bit more focused.</li>
+<li>Numerous small edits.</li>
 </ul>
 </div>
 <div id="c" class="section level3 hasAnchor" number="1.2">
@@ -322,7 +324,7 @@ which was intriguing but not practical.</li>
 <h2><span class="header-section-number">2</span> Tools for Bayesian inference<a href="#bayesian" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Our goal is to characterize the joint posterior distribution
 <span class="math display">\[
-  p(\theta, \phi, \eta \mid y).
+  p(\theta, \phi\mid y).
 \]</span>
 A tool of choice is Hamiltonian Monte Carlo (HMC), however there are known
 challenges when using HMC to fit multilevel models. Indeed, the interaction
@@ -337,18 +339,18 @@ between <span class="math inline">\(\theta\)</span> and <span class="math inline
 whereby we first marginalize out <span class="math inline">\(\theta\)</span> and draw samples from the marginal
 posterior distribution
 <span class="math display">\[\begin{eqnarray*}
-  p(\phi, \eta \mid y) &amp; \propto &amp; p(\phi, \eta) p(y \mid \phi, \eta) \\
-    &amp; \propto &amp; p(\phi, \eta) \int p(y \mid \theta, \phi, \eta) \mathrm d \theta,
+  p(\phi \mid y) &amp; \propto &amp; p(\phi) p(y \mid \phi) \\
+    &amp; \propto &amp; p(\phi) \int p(y \mid \theta, \phi) \mathrm d \theta.
 \end{eqnarray*}\]</span>
-with the expectation that <span class="math inline">\(p(\phi, \eta \mid y)\)</span> has a better-behaved geometry.</p>
-<p>Furthermore, we can obtain posterior samples for <span class="math inline">\(\theta\)</span> via a two-step
+For many problems, <span class="math inline">\(p(\phi \mid y)\)</span> has a well-behaved geometry.</p>
+<p>We then obtain posterior samples for <span class="math inline">\(\theta\)</span> via a two-step
 sampling procedure
 <span class="math display">\[\begin{eqnarray*}
-  \phi, \eta &amp; \sim &amp; \pi(\phi, \eta \mid y) \\
-  \theta &amp; \sim &amp; \pi(\theta \mid \phi,\eta,  y).
+  \phi &amp; \sim &amp; p(\phi \mid y) \\
+  \theta &amp; \sim &amp; p(\theta \mid \phi,  y).
 \end{eqnarray*}\]</span>
 Together, these steps generate samples from the joint posterior
-distribution <span class="math inline">\(p(\phi, \eta, \theta \mid y)\)</span>.</p>
+distribution <span class="math inline">\(p(\phi, \theta \mid y)\)</span>.</p>
 <p>Usually, we cannot calculate <span class="math inline">\(p(\phi \mid y)\)</span> or <span class="math inline">\(p(\theta \mid \phi, y)\)</span>
 explicitly. However, exploiting the fact <span class="math inline">\(\theta\)</span> has a normal prior,
 we can sometimes obtain accurate approximations of these distributions
@@ -385,7 +387,7 @@ and
   \hat \theta_i = \left (\frac{\mu}{\tau^2} + \frac{y_i}{\sigma^2_i} \right) \hat \sigma_i^2.
 \end{equation*}\]</span>
 This last result is obtained via an argument of conjugacy.</p>
-<p>Samples from the joint posterior <span class="math inline">\(p(\theta, \eta, \phi \mid y, \sigma)\)</span> are
+<p>Samples from the joint posterior <span class="math inline">\(p(\theta, \tau \mid y, \sigma)\)</span> are
 obtained using both the model and the generated quantities blocks.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode stan"><code class="sourceCode stan"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="kw">model</span> {</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  mu ~ normal(<span class="dv">5</span>, <span class="dv">3</span>);</span>
@@ -462,8 +464,8 @@ The sampler is run over the joint space <span class="math inline">\((\tau, \mu, 
 ## 
 ## Chain 1 finished in 0.0 seconds.
 ## Chain 2 finished in 0.0 seconds.
-## Chain 3 finished in 0.1 seconds.
-## Chain 4 finished in 0.1 seconds.
+## Chain 3 finished in 0.0 seconds.
+## Chain 4 finished in 0.0 seconds.
 ## 
 ## All 4 chains finished successfully.
 ## Mean chain execution time: 0.0 seconds.
@@ -518,13 +520,13 @@ and instead we rely on a Laplace approximation,
 <p>Formally, the Laplace approximation is a second-order Taylor expansion of
 <span class="math inline">\(\log p(\theta \mid \phi, y)\)</span> around the mode
 <span class="math inline">\(\theta^* = \text{argmax}_\theta \ p(\theta \mid \phi, y)\)</span>,
-<span class="math display">\[
-  \log \hat p(\theta \mid \phi, y) = \log p(\theta^*|\phi, y) + \left (\nabla_\theta \log p(\theta|\phi, y) \large |_{\theta=\theta^*} \right)^T (\theta - \theta^*) + \frac{1}{2} (\theta-\theta^*)^T \frac{\partial^2 \log p(\theta|\phi, y)}{\partial \theta^2} {\large |_{\theta=\theta^*}} (\theta - \theta^*).
-\]</span>
-I’ll now argue that this Taylor expansion defines a normal approximation.
-In the above expression, the first term can be ignored, because it is constant
+<span class="math display">\[\begin{eqnarray*}
+  \log \hat p(\theta \mid \phi, y) = &amp; \log p(\theta^*|\phi, y) + \left (\nabla_\theta \log p(\theta|\phi, y) \large |_{\theta=\theta^*} \right)^T (\theta - \theta^*) \\ &amp; + \frac{1}{2} (\theta-\theta^*)^T \frac{\partial^2 \log p(\theta|\phi, y)}{\partial \theta^2} {\large |_{\theta=\theta^*}} (\theta - \theta^*).
+\end{eqnarray*}\]</span>
+This Taylor expansion defines a normal approximation.
+To see this, first note that in the above expression, the first term can be ignored, because it is constant
 with respect to <span class="math inline">\(\theta\)</span>, and the second term vanishes, because the gradient is
-null at the mode. We are therefore left with the third and quadratic
+null at the mode. We are then left with the third and quadratic
 term, which corresponds to the logarithm of an unormalized normal density centered
 at <span class="math inline">\(\theta^*\)</span> and with a covariance whose inverse matches the negative Hessian
 of <span class="math inline">\(\log p(\theta|\phi, y)\)</span>. (In other words, the approximating normal matches
@@ -539,7 +541,7 @@ of <span class="math inline">\(\log p(\theta \mid \phi, y)\)</span>.</p>
     \approx p(\phi \mid y),
 \]</span>
 where the approximate equality on the right is exact if we replace
-<span class="math inline">\(\hat p(\theta^* \mid \phi, y)\)</span> with <span class="math inline">\(p(\theta \mid \phi, y)\)</span>.
+<span class="math inline">\(\hat p(\theta^* \mid \phi, y)\)</span> with <span class="math inline">\(p(\theta^* \mid \phi, y)\)</span>.
 (Note: this result is true if we plug in any value of <span class="math inline">\(\theta\)</span> in the above
 density rather than <span class="math inline">\(\theta^*\)</span> but the convention is to use <span class="math inline">\(\theta^*\)</span>.)
 Equipped with this approximation, we can repeat the two-stage sampling scheme
@@ -732,14 +734,14 @@ with the approximate marginal density, <span class="math inline">\(\log \hat p(y
 ## Chain 4   reason:     laplace_marginal_density: Cholesky failed after adding jitter up to 0.000100 
 ## Chain 4   action:     trying solver 2 (Covariance-root Cholesky) 
 ## Chain 4 note: this warning message will only be displayed once. 
-## Chain 3 finished in 12.5 seconds.
-## Chain 4 finished in 13.4 seconds.
-## Chain 1 finished in 13.5 seconds.
-## Chain 2 finished in 13.7 seconds.
+## Chain 3 finished in 11.9 seconds.
+## Chain 1 finished in 12.8 seconds.
+## Chain 4 finished in 12.7 seconds.
+## Chain 2 finished in 13.0 seconds.
 ## 
 ## All 4 chains finished successfully.
-## Mean chain execution time: 13.3 seconds.
-## Total execution time: 13.9 seconds.</code></pre>
+## Mean chain execution time: 12.6 seconds.
+## Total execution time: 13.2 seconds.</code></pre>
 <p>The fit runs without any concerning messages being displayed. (We may get some
 warning messages about numerical instability during the early warmup but
 these errors are not concerning, as long as they do not persist during the
@@ -827,7 +829,7 @@ added and when needed, users can always specify their own likelihood.</p>
 </div>
 <div id="skim" class="section level2 hasAnchor" number="5">
 <h2><span class="header-section-number">5</span> Sparse kernel interaction model<a href="#skim" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>In this next example, we examine a prostate cancer classification data set<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.
+<p>In this next example, we examine a prostate cancer classification data set<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>.
 The goal of the study is to identify predictors for the development of
 prostate cancer. For each patient, <span class="math inline">\(d \approx 6,000\)</span> covariates are measured,
 and a binary variable indicates whether or not the patient develops cancer.
@@ -1176,6 +1178,10 @@ Vehtari, Aki, Tommi Mononen, Ville Tolvanen, Tuomas Sivula, and Ole Winther. 201
 
 
 
+
+
+
+
 <h3>References</h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-Agrawal:2019" class="csl-entry">
@@ -1225,7 +1231,11 @@ Vehtari, Aki, Tommi Mononen, Ville Tolvanen, Tuomas Sivula, and Ole Winther. 201
 <hr />
 <ol start="1">
 <li id="fn1"><p>Department of Statistics, University of British Columbia<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>Available on <a href="http://featureselection.asu.edu/datasets.php">http://featureselection.asu.edu/datasets.php</a>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Center for Computational Mathematics, Flatiron Institute<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Department of Computer Science, Aalto University<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>while at Department of Statistical Sciences, University of Toronto<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>while at CSAIL, Massachusetts Institute of Technology<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>Available on <a href="http://featureselection.asu.edu/datasets.php">http://featureselection.asu.edu/datasets.php</a>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>

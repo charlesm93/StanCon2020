@@ -54,9 +54,9 @@ transformed data {
   matrix[n, d] x2 = square(x);
 
   // variables for built-in likelihood
-  // array[n] int y_index;
+  array[n] int y_index = rep_array(1, n);
   // for (i in 1:n) y_index[i] = i-1;
-  // vector[n] m = rep_vector(0, n);
+  vector[n] m = rep_vector(0, n);
   int hessian_block_size = 1;
 }
 
@@ -88,24 +88,24 @@ model {
   xi ~ inv_gamma(half_slab_df, half_slab_df);
 
   // using user-defined function
-  target += laplace_marginal(likelihood_function, (y, 0), hessian_block_size,
-        covariance_function,
-        (kappa_squared, eta_one, eta_two, x, x2, n, d, scale_icept));
-
-  // using built-in function
-  // y ~ laplace_marginal_bernoulli_logit(y_index, m, hessian_block_size,
+  // target += laplace_marginal(likelihood_function, (y, 0), hessian_block_size,
   //       covariance_function,
   //       (kappa_squared, eta_one, eta_two, x, x2, n, d, scale_icept));
+
+  // using built-in function
+  y ~ laplace_marginal_bernoulli_logit(y_index, m, hessian_block_size,
+        covariance_function,
+        (kappa_squared, eta_one, eta_two, x, x2, n, d, scale_icept));
 }
 
 generated quantities {
-  vector[n] theta = laplace_latent_rng(likelihood_function, (y, 0),
-        hessian_block_size, covariance_function,
-        (kappa_squared, eta_one, eta_two, x, x2, n, d, scale_icept));
-
-  // vector[n] theta = laplace_latent_bernoulli_logit_rng(y, y_index, m,
+  // vector[n] theta = laplace_latent_rng(likelihood_function, (y, 0),
   //       hessian_block_size, covariance_function,
   //       (kappa_squared, eta_one, eta_two, x, x2, n, d, scale_icept));
+
+  vector[n] theta = laplace_latent_bernoulli_logit_rng(y, y_index, m,
+        hessian_block_size, covariance_function,
+        (kappa_squared, eta_one, eta_two, x, x2, n, d, scale_icept));
 
   vector[n] p = inv_logit(theta);
 }

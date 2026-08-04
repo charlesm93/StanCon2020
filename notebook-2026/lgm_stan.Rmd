@@ -1,7 +1,7 @@
 ---
-title: "Approximate Bayesian inference for latent Gaussian models in Stan"
+title: "Approximate Bayesian inference for latent Gaussian models in Stan (v3)"
 author:
-- Charles C. Margossian^[Department of Statistics, University of British Columbia]
+- Charles C. Margossian^[Department of Statistics, University of British Columbia], Steve Bronder^[Center for Computational Mathematics, Flatiron Institute], Aki Vehtari^[Department of Computer Science, Aalto University], Daniel Simpson^[while at Department of Statistical Sciences, University of Toronto] and Raj Agrawal^[while at CSAIL, Massachusetts Institute of Technology]
 output: bookdown::gitbook
 keep_tex: true
 citation_package: natbib
@@ -16,7 +16,7 @@ abstract: >
   latent Gaussian variables and run inference on a marginal posterior. When
   exact marginalization is not possible, we can perform _approximate_
   marginalization using an embedded Laplace approximation. In this case study,
-  I demonstrate how to use Stan's embedded Laplace approximation on two Gaussian
+  we demonstrate how to use Stan's embedded Laplace approximation on two Gaussian
   process examples: one application in spatial epidemiology and one in genetics.
 ---
 
@@ -25,10 +25,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 $$
-\text{v3.0 -- updated: July 2026}
+\text{v3.0 DRAFT -- updated: July 2026}
 $$
 
-This notebook builds closely on a [2022 case study](https://htmlpreview.github.io/?https://github.com/charlesm93/StanCon2020/blob/master/notebook-2022/lgm_stan.html) written for a prototype embedded Laplace approximation.
+This notebook is an update of a [2022 case study](https://htmlpreview.github.io/?https://github.com/charlesm93/StanCon2020/blob/master/notebook-2022/lgm_stan.html) written for Stan's prototype embedded Laplace approximation.
 
 ## Introduction {#Introduction}
 
